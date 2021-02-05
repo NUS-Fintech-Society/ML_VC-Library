@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def parse_requirements():
@@ -14,9 +14,9 @@ setup(
     name="mlvc",
     version="0.0.1",
     include_package_data=True,
-    url="https://github.com/NUS-Fintech-Society/ML_VC-Library",
+    url="https://github.com/nus-fintech-society/ml_vc-library",
     license="MIT",
-    packages=["mlvc"],
+    packages=find_packages(),
     install_requires=parse_requirements(),
     platform=["any"],
     python_requires=">=3.7",
