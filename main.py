@@ -1,6 +1,6 @@
 import logging
-from vc.config import config
-from vc.logging.logger import Logger
+from mlvc.config import config
+from mlvc.logging.logger import Logger
 
 
 def main():
