@@ -12,7 +12,7 @@ def parse_requirements():
 
 setup(
     name="mlvc",
-    version="0.0.1",
+    version="0.0.2",
     include_package_data=True,
     url="https://github.com/nus-fintech-society/ml_vc-library",
     license="MIT",
