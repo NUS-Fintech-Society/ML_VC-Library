@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def parse_requirements():
@@ -9,14 +9,16 @@ def parse_requirements():
         print(e)
         return []
 
+
 setup(
     name="mlvc",
-    version="0.0.0",
+    version="0.0.1",
     include_package_data=True,
     url="https://github.com/NUS-Fintech-Society/ML_VC-Library",
     license="MIT",
-    packages=find_packages(),
+    packages=["mlvc"],
     install_requires=parse_requirements(),
     platform=["any"],
     python_requires=">=3.7",
+    zip_safe=False
 )
