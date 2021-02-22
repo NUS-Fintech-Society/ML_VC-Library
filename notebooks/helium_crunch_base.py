@@ -3,11 +3,16 @@
 from helium import *
 import time
 
+
 # shared icons
 icon_location = "M12,2C8.1,2,5,5.1,5,9c0,5.2,7,13,7,13s7-7.8,7-13C19,5.1,15.9,2,12,2z M12,11.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S13.4,11.5,12,11.5z"
 icon_employees = "M16.36,10.91a3.28,3.28,0,1,0-3.27-3.27A3.26,3.26,0,0,0,16.36,10.91Zm-8.72,0A3.28,3.28,0,1,0,4.36,7.64,3.26,3.26,0,0,0,7.64,10.91Zm0,2.18C5.09,13.09,0,14.37,0,16.91v2.73H15.27V16.91C15.27,14.37,10.18,13.09,7.64,13.09Zm8.72,0a10.24,10.24,0,0,0-1,.06,4.59,4.59,0,0,1,2.14,3.76v2.73H24V16.91C24,14.37,18.91,13.09,16.36,13.09Z"
 icon_website = "M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M11,19.9c-3.9-0.5-7-3.9-7-7.9c0-0.6,0.1-1.2,0.2-1.8L9,15v1c0,1.1,0.9,2,2,2V19.9z M17.9,17.4c-0.3-0.8-1-1.4-1.9-1.4h-1v-3c0-0.6-0.4-1-1-1H8v-2h2c0.6,0,1-0.4,1-1V7h2c1.1,0,2-0.9,2-2V4.6c2.9,1.2,5,4.1,5,7.4C20,14.1,19.2,16,17.9,17.4z"
 icon_cbrank = "M21.3,0H2.7C1.2,0,0,1.2,0,2.7v18.7C0,22.8,1.2,24,2.7,24h18.7c1.5,0,2.7-1.2,2.7-2.7V2.7C24,1.2,22.8,0,21.3,0z M21.3,21.3H2.7V2.7h18.7V21.3z"
+
+location_mapping = {
+    "M12,2C8.1,2,5,5.1,5,9c0,5.2,7,13,7,13s7-7.8,7-13C19,5.1,15.9,2,12,2z M12,11.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S13.4,11.5,12,11.5z" : 'location'
+    }
 
 # venture capital icons
 icon_investor = "M9,10.71A3.87,3.87,0,1,0,5.15,6.85,3.85,3.85,0,0,0,9,10.71Zm0,2.58c-3,0-9,1.51-9,4.51V21H18V17.8C18,14.8,12,13.29,9,13.29Z"
@@ -36,9 +41,6 @@ class CrunchBaseScrapper:
     def scrape_information(self):
         profile_type = self._get_profile_type()
 
-
-
-
         self._get_location()
         self._get_general_information()
         self._get_about()
@@ -58,9 +60,11 @@ class CrunchBaseScrapper:
         location = [cell.web_element.text for cell in find_all(S("fields-card > ul > li > label-with-icon > span"))]
         return location
 
-
     def _get_general_information(self):
-        pass
+        element = S("fields-card > ul > li > label-with-icon")
+        # print(element.find_element_by_tag_name('div'))
+        general_list = [cell.web_element.find_element_by_tag_name('path')[0].get_attribute("p") for cell in find_all(element)]
+        print(general_list)
 
     def _get_about(self):
         self._check_driver()
@@ -88,12 +92,16 @@ class CrunchBaseScrapper:
 
     def _get_highlights(self):
         self._check_driver()
-        highlight_element = S("profile-section > section-card > mat-card > div > div > anchored-values > div > a > div > field-formatter > span")
-        highlight_list = [cell.web_element.text for cell in find_all(highlight_element)]
-        print(highlight_list)
+        obj = {}
+        highlight_element = S("profile-section > section-card > mat-card > div > div > anchored-values > div > a > div")
+        highlight_list = [cell.web_element.text.split("\n") for cell in find_all(highlight_element)]
+        res = list(map(lambda x: (", ".join(x[:-1]).strip(), x[-1]), highlight_list))
+        for key, value in res:
+            obj[key] = value
+        return obj
 
 
 cbs = CrunchBaseScrapper()
-cbs.go_company_ranking(120)
+cbs.go_company_ranking(403)
 cbs.scrape_information()
 # cbs.get_acquired_by()
