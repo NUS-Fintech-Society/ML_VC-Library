@@ -83,6 +83,110 @@ class CrunchBaseScrapper:
             f"https://www.crunchbase.com/search/organization.companies/field/organizations/rank_org_company/{ranking}")
 #         wait_until(Text("Organization Name").exists)
         if Text("Press & Hold").exists():
+            for j in big_array: 
+                if len(j) != i:
+                    j.pop()
+             
+            df2 = pd.DataFrame({'CrunchBase Ranking': all_rnklst,
+                                'Company Name/Organisation Name': all_names,
+                                'Acquired by': all_acquired_by,
+                                'About': all_abouts,
+                                'Location': all_locations,
+                                'Number of Employees': all_no_employees,
+                                'Industry': all_industries,
+                                'IPO Status': all_ipo_status,
+                                'Website': all_websites,
+                                'Founded Date': all_founded_date,
+                                'Headquarters': all_hqs,
+                                'Founders': all_founders,
+                                'Operating Status': all_operating_status,
+                                'Hub Tags': all_hub_tags,
+                                'Last Funding Type': all_last_funding_types,
+                                'Company Type': all_company_types,
+                                'Investor Type': all_investor_type,
+                                'Investment Stage': temp_list,
+                                'Number of Investors': all_no_investors,
+                                'Number Funding Rounds': all_no_funding_rounds,
+                                'Total Funding Amount': all_total_funding_amt,
+                                'Number of exits': all_no_exits,
+                                'Number of Lead Investors': all_no_lead_investors,
+                                'Number of Acquisitions': all_no_acquisitions,
+                                'Number of Current Team Members (core team)': all_no_current_team,
+                                'Number of Board Members/Advisors': all_no_board_members,
+                                'Total Products Active': all_total_products_active,
+                                'Product Downloads in the Last 30 Days': all_product_downloads,
+                                'Active Tech Count': all_active_tech_count,
+                                'Monthly Visits': all_monthly_visits,
+                                'Monthly Visits Growth': all_monthly_visit_growth,
+                                'Number of Articles': all_no_articles,
+                                'Number of Events': all_no_events,
+                                'Number of Funds': all_no_funds,
+                                'Number of Investments': all_no_investments,
+                                'Number of Diversity Investments': all_no_diversity_investments,
+                                'Number of Exits': all_no_exits,
+                                'Related Hubs': all_hub_tags,
+                                'Investor Type': temp_list,
+                                'Stock Symbol': all_stock_symbols,
+                                'IPO Date': temp_list,
+                                'Number of Sub': temp_list,
+                                'Organisations': temp_list,
+                                'Funding Rounds': temp_list,
+                                'Funds Raised (for VC)': temp_list,
+                                'Number of Lead Investments': temp_list
+                                }) 
+            df2.to_csv("paused.csv")
+            
+        if Text("Please verify you are a human").exists():
+            
+            df2 = pd.DataFrame({
+                'CrunchBase Ranking': all_rnklst,
+                'Company Name/Organisation Name': all_names,
+                'Acquired by': all_acquired_by,
+                'About': all_abouts,
+                'Location': all_locations,
+                'Number of Employees': all_no_employees,
+                'Industry': all_industries,
+                'IPO Status': all_ipo_status,
+                'Website': all_websites,
+                'Founded Date': all_founded_date,
+                'Headquarters': all_hqs,
+                'Founders': all_founders,
+                'Operating Status': all_operating_status,
+                'Hub Tags': all_hub_tags,
+                'Last Funding Type': all_last_funding_types,
+                'Company Type': all_company_types,
+                'Investor Type': all_investor_type,
+                'Investment Stage': temp_list,
+                'Number of Investors': all_no_investors,
+                'Number Funding Rounds': all_no_funding_rounds,
+                'Total Funding Amount': all_total_funding_amt,
+                'Number of exits': all_no_exits,
+                'Number of Lead Investors': all_no_lead_investors,
+                'Number of Acquisitions': all_no_acquisitions,
+                'Number of Current Team Members (core team)': all_no_current_team,
+                'Number of Board Members/Advisors': all_no_board_members,
+                'Total Products Active': all_total_products_active,
+                'Product Downloads in the Last 30 Days': all_product_downloads,
+                'Active Tech Count': all_active_tech_count,
+                'Monthly Visits': all_monthly_visits,
+                'Monthly Visits Growth': all_monthly_visit_growth,
+                'Number of Articles': all_no_articles,
+                'Number of Events': all_no_events,
+                'Number of Funds': all_no_funds,
+                'Number of Investments': all_no_investments,
+                'Number of Diversity Investments': all_no_diversity_investments,
+                'Number of Exits': all_no_exits,
+                'Related Hubs': all_hub_tags,
+                'Investor Type': temp_list,
+                'Stock Symbol': all_stock_symbols,
+                'IPO Date': temp_list,
+                'Number of Sub': temp_list,
+                'Organisations': temp_list,
+                'Funding Rounds': temp_list,
+                'Funds Raised (for VC)': temp_list,
+                'Number of Lead Investments': temp_list
+            }) 
+            df2.to_csv("paused.csv")
             print("error")
 
         if Text("Organization Name").exists():
@@ -399,7 +503,7 @@ class CrunchBaseScrapper:
 
 
 # Script Starts Here
-for i in range(1, 5):
+for i in range(50, 71):
     cbs = CrunchBaseScrapper()
     cbs.go_company_ranking(i)
     all_rnklst.append(i)
@@ -464,4 +568,4 @@ df2 = pd.DataFrame({
     'Number of Lead Investments': temp_list
 })
 
-df2.to_csv("first4.csv")
+df2.to_csv("second50.csv")
