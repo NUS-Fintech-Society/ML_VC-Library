@@ -2,7 +2,9 @@
 # from helium import Text, TextField, ListItem, Button, S, Link
 from helium import *
 import selenium as selenium
+from datetime import datetime
 from selenium.webdriver import ChromeOptions
+import pandas as pd
 import time
 
 # import pandas as pd
@@ -17,6 +19,7 @@ icon_mapping = {
     "M8.44679391,9.59786248 L8.44679391,10.7127564 C9.51041577,10.9723892 10.0449539,11.7763782 10.0798625,12.6523663 L8.95515061,12.6523663 C8.92569647,12.016375 8.58861016,11.58329 7.68316796,11.58329 C6.82245242,11.58329 6.30864125,11.9705574 6.30864125,12.5247317 C6.30864125,13.0090887 6.67954528,13.3189027 7.83589315,13.6199895 C8.99115012,13.9199854 10.2282242,14.4141604 10.2282242,15.8595953 C10.2282242,16.903581 9.43950764,17.4784823 8.44679391,17.6661161 L8.44679391,18.7613739 L6.91954201,18.7613739 L6.91954201,17.6573889 C5.94210079,17.4479373 5.10756671,16.821764 5.04647664,15.7068701 L6.16464321,15.7068701 C6.2224606,16.3068619 6.63481862,16.7759464 7.68316796,16.7759464 C8.806789,16.7759464 9.05769467,16.2152268 9.05769467,15.8650497 C9.05769467,15.3916017 8.80351632,14.9432441 7.53044277,14.6377938 C6.1090076,14.2974348 5.13702086,13.7116246 5.13702086,12.5345497 C5.13702086,11.5527449 5.93119185,10.9112991 6.91954201,10.6974839 L6.91954201,9.59786248 L8.44679391,9.59786248 Z M1.5272519,20.2886258 L13.7452671,20.2886258 L13.7452671,8.07061058 L1.5272519,8.07061058 L1.5272519,20.2886258 Z M13.7452671,6.54335868 C14.5863465,6.54335868 15.272519,7.23062204 15.272519,8.07061058 L15.272519,20.2886258 C15.272519,21.1286143 14.5863465,21.8158777 13.7452671,21.8158777 L1.5272519,21.8158777 C0.687263355,21.8158777 -5.68434189e-14,21.1286143 -5.68434189e-14,20.2886258 L-5.68434189e-14,8.07061058 C-5.68434189e-14,7.23062204 0.687263355,6.54335868 1.5272519,6.54335868 L13.7452671,6.54335868 Z M24,13.0889422 L24,15.2707306 L17.4546347,15.2707306 L17.4546347,13.0889422 L24,13.0889422 Z M24,7.63447108 L24,9.81625951 L17.4546347,9.81625951 L17.4546347,7.63447108 L24,7.63447108 Z M24,2.18 L24,4.36178843 L12.0001636,4.36178843 L12.0001636,2.18 L24,2.18 Z": "investment_stage",
     "M12.52,10.53c-3-.78-4-1.6-4-2.86,0-1.46,1.35-2.47,3.6-2.47S15.37,6.33,15.45,8H18.4a5.31,5.31,0,0,0-4.28-5.08V0h-4V2.88c-2.59.56-4.67,2.24-4.67,4.81,0,3.08,2.55,4.62,6.27,5.51,3.33.8,4,2,4,3.21,0,.92-.65,2.39-3.6,2.39-2.75,0-3.83-1.23-4-2.8H5.21c.16,2.92,2.35,4.56,4.91,5.11V24h4V21.13c2.6-.49,4.67-2,4.67-4.73C18.79,12.61,15.55,11.32,12.52,10.53Z": "last_funding",
     "M14.4,6L14,4H5v17h2v-7h5.6l0.4,2h7V6H14.4z": "ipo_status",
+    "M20,7h-4V5c0-1.1-0.9-2-2-2h-4C8.9,3,8,3.9,8,5v2H4C2.9,7,2,7.9,2,9l0,11c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V9C22,7.9,21.1,7,20,7z M14,7h-4V5h4V7z": "hiring_status"
 }
 
 
@@ -33,64 +36,253 @@ class CrunchBaseScrapper:
             raise Exception("Driver not initialised")
         go_to(
             f"https://www.crunchbase.com/search/organization.companies/field/organizations/rank_org_company/{ranking}")
+        wait_until(Text("Organization Name").exists)
+        if Text("Press & Hold").exists():
+            print("the blocker came on cb")
         if Text("Organization Name").exists():
             click(Link(below="Organization Name"))
             time.sleep(3)
 
     def scrape_information(self):
+        profile_name = cbs.driver.current_url.split('/')[-1:]
         profile_type = self._get_profile_type()
-        if profile_type == "ORGANIZATION":
-            # Summary
-            for icon in icon_list:
-                if icon_location == icon:
-                    all_locations.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_employees == icon:
-                    all_no_employees.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_last_funding == icon:
-                    all_last_funding_types.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_ipo_status == icon:
-                    all_ipo_status.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_website == icon:
-                    # not saving this
-                    general_list.pop(0)  # removes the information
-                if icon_cbrank == icon:
-                    # dont need to save this
-                    general_list.pop(0)  # removes the information
-        if profile_type[0] == "INVESTMENT FIRM":
-            # Icons
-            for icon in icon_list:
-                if icon_location == icon:
-                    all_locations.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_employees == icon:
-                    all_no_employees.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_investor == icon:
-                    all_company_types.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_investmentstage == icon:
-                    all_investment_stages.append(general_list[0])
-                    general_list.pop(0)  # removes the information
-                if icon_website == icon:
-                    # not keeping website!
-                    general_list.pop(0)  # removes the information
-                if icon_cbrank == icon:
-                    # not keeping this
-                    general_list.pop(0)  # removes the information
-
-
-        location = self._get_location()
-        print(location)
         general_info = self._get_general_information()
-        print(general_info)
         about = self._get_about()
-        print(about)
         highlights = self._get_highlights()
-        print(highlights)
+        details = self._get_details()
+        news = self._get_recentNews()
+
+        # check if its investment firm
+        if profile_type == "INVESTMENT FIRM":
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            all_profile_type.append(profile_type)
+            ## Summary Page
+            # general info
+            if about is not None:
+                all_abouts.append(about[0])
+
+            if profile_name is not None:
+                all_names.append(profile_name[0])
+            if 'location' in general_info:
+                all_locations.append(general_info['location'])
+            if 'employee' in general_info:
+                all_no_employees.append(general_info['employee'])
+            if 'investor' in general_info:
+                all_investor_type.append(general_info['investor'])
+            if 'investment_stage' in general_info:
+                all_investment_stages.append(general_info['investment_stage'])
+            if 'website' in general_info:
+                all_websites.append(general_info['website'])
+
+            # Highlights
+            if 'Number of Funds' in highlights:
+                all_no_funds.append(highlights['Number of Funds'])
+            if 'Number of Acquisitions' in highlights:
+                all_no_acquisitions.append(highlights['Number of Acquisitions'])
+            if 'Number of Investments' in highlights:
+                all_no_investments.append(highlights['Number of Investments'])
+            if 'Number of Diversity Investments' in highlights:
+                all_no_diversity_investments.append(highlights['Number of Diversity Investments'])
+            if 'Number of Exits' in highlights:
+                all_no_exits.append(highlights['Number of Exits'])
+            if 'Total Funding Amount' in highlights:
+                all_total_funding_amt.append(highlights['Total Funding Amount'])
+
+            # Details
+            if 'Industries' in details:
+                all_industries.append(details['Industries'])
+            if 'Founded Date' in details:
+                all_founded_date.append(details['Founded Date'])
+            if 'Founders' in details:
+                all_founders.append(details['Founders'])
+            if 'Operating Status' in details:
+                all_operating_status.append(details['Operating Status'])
+            if 'Last Funding Type' in details:
+                all_last_funding_types.append(details['Last Funding Type'])
+            if 'Headquarters Regions' in details:
+                all_hqs.append(details['Headquarters Regions'])
+            if 'Stock Symbol' in details:
+                all_stock_symbols.append(details['Stock Symbol'])
+            if 'Related Hubs' in details:
+                all_related_hubs.append(details['Related Hubs'])
+            if 'Hub Tags' in details:
+                all_hub_tags.append(details['Hub Tags'])
+            if 'Company Type' in details:
+                all_company_types.append(details['Company Type'])
+
+            ##Financials Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/investor_financials")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # highlights
+            highlights2 = self._get_highlights3()
+            highlights3 = self._get_highlights2()
+            if 'Number of Funding Rounds' in highlights2:
+                all_no_funding_rounds.append(highlights2['Number of Funding Rounds'])
+            if 'Number of Lead Investors' in highlights2:
+                all_no_lead_investors.append(highlights2['Number of Lead Investors'])
+            if 'Number of Investors' in highlights2:
+                all_no_investors.append(highlights2['Number of Investors'])
+            if 'IPO Date' in highlights3:
+                all_ipo_dates.append(highlights3['IPO Date'])
+            if 'Total Fund Raised' in highlights2:
+                all_funds_raised.append(highlights2['Total Fund Raised'])
+
+            ##Investments Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/recent_investments")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            highlights3 = self._get_highlights()
+            if 'Number of Lead Investments' in highlights3:
+                all_no_lead_investments.append(highlights3['Number of Lead Investments'])
+
+            ##People Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/people")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            highlights4 = self._get_highlights()
+            if 'Number of Board Members / Advisors' in highlights4:
+                all_no_board_members.append(highlights4['Number of Board Members / Advisors'])
+            if 'Number of Current Team' in highlights4:
+                all_no_board_members.append(highlights4['Number of Current Team'])
+
+            ##Technology Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/technology")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            highlights5 = self._get_highlights()
+            if 'Total Products Active' in highlights5:
+                all_total_products_active.append(highlights5['Total Products Active'])
+            if 'Active Tech Count' in highlights5:
+                all_active_tech_count.append(highlights5['Active Tech Count'])
+            if 'Monthly Visits' in highlights5:
+                all_monthly_visits.append(highlights5['Monthly Visits'])
+            if 'Monthly Visits Growth' in highlights5:
+                all_monthly_visit_growth.append(highlights5['Monthly Visits Growth'])
+            if 'Downloads Last 30 Days' in highlights5:
+                all_product_downloads.append(highlights5['Downloads Last 30 Days'])
+
+            ##Signals & News Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/signals_and_news")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            news = self._get_recentNews()
+            if 'Number of Articles' in news:
+                all_no_articles.append(news['Number of Articles'])
+            if 'Number of Events' in news:
+                all_no_events.append(news['Number of Events'])
+
+        if profile_type == "ORGANIZATION":
+            all_profile_type.append(profile_type)
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            ## Summary Page
+            # general info
+            if about is not None:
+                all_abouts.append(about[0])
+
+            if profile_name is not None:
+                all_names.append(profile_name[0])
+            if 'location' in general_info:
+                all_locations.append(general_info['location'])
+            if 'employee' in general_info:
+                all_no_employees.append(general_info['employee'])
+            #             if 'last_funding' in general_info:
+            #                 all_last_funding_types.append(general_info['last_funding'])
+            if 'ipo_status' in general_info:
+                all_ipo_status.append(general_info['ipo_status'])
+            if 'website' in general_info:
+                all_websites.append(general_info['website'])
+
+            # Highlights
+            if 'Number of Acquisitions' in highlights:
+                all_no_acquisitions.append(highlights['Number of Acquisitions'])
+            if 'Number of Investments' in highlights:
+                all_no_investments.append(highlights['Number of Investments'])
+            if 'Total Funding Amount' in highlights:
+                all_total_funding_amt.append(highlights['Total Funding Amount'])
+            if 'Number of Current Team Members' in highlights:
+                all_no_current_team.append(highlights['Number of Current Team Members'])
+            if 'Number of Investors' in highlights:
+                all_no_investors.append(highlights['Number of Investors'])
+
+            # Details
+            if 'Industries' in details:
+                all_industries.append(details['Industries'])
+            if 'Headquarters Regions' in details:
+                all_hqs.append(details['Headquarters Regions'])
+            if 'Founded Date' in details:
+                all_founded_date.append(details['Founded Date'])
+            if 'Founders' in details:
+                all_founders.append(details['Founders'])
+            if 'Operating Status' in details:
+                all_operating_status.append(details['Operating Status'])
+            if 'Last Funding Type' in details:
+                all_last_funding_types.append(details['Last Funding Type'])
+            if 'Related Hubs' in details:
+                all_related_hubs.append(details['Related Hubs'])
+            if 'Hub Tags' in details:
+                all_hub_tags.append(details['Hub Tags'])
+            if 'Company Type' in details:
+                all_company_types.append(details['Company Type'])
+
+            ## Financials Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/company_financials")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            highlights2 = self._get_highlights()
+            highlights3 = self._get_highlights2()
+            if 'Number of Funding Rounds' in highlights2:
+                all_no_funding_rounds.append(highlights2['Number of Funding Rounds'])
+            if 'Number of Lead Investors' in highlights2:
+                all_no_lead_investors.append(highlights2['Number of Lead Investors'])
+            if 'Number of Lead Investments' in highlights2:
+                all_no_lead_investments.append(highlights2['Number of Lead Investments'])
+            if 'Number of Exits' in highlights2:
+                all_no_exits.append(highlights2['Number of Exits'])
+            if 'IPO Date' in highlights3:
+                all_ipo_dates.append(highlights3['IPO Date'])
+
+            ## People Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/people")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            highlights4 = self._get_highlights()
+            if 'Number of Board Members /' in highlights4:
+                all_no_board_members.append(highlights4['Number of Board Members /'])
+
+            if 'Number of Current Team' in highlights4:
+                all_no_board_members.append(highlights4['Number of Current Team'])
+
+            ## Technology Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/technology")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # highlights
+            highlights5 = self._get_highlights()
+            if 'Total Products Active' in highlights5:
+                all_total_products_active.append(highlights5['Total Products Active'])
+                # print('total products active', highlights5['Number of Funding Rounds'])
+            if 'Active Tech Count' in highlights5:
+                all_active_tech_count.append(highlights5['Active Tech Count'])
+                # print('acitve tech count', highlights5['Active Tech Count'])
+            if 'Monthly Visits' in highlights5:
+                all_monthly_visits.append(highlights5['Monthly Visits'])
+                # print('number of investors', highlights5['Number of Investors'])
+            if 'Monthly Visits Growth' in highlights5:
+                all_monthly_visit_growth.append(highlights5['Monthly Visits Growth'])
+                # print('monthly visits growth', highlights5['Monthly Visits Growth'])
+            if 'Downloads Last 30 Days' in highlights5:
+                all_product_downloads.append(highlights5['Downloads Last 30 Days'])
+
+            ##Signals & News Page
+            go_to(
+                f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/signals_and_news")
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            news = self._get_recentNews()
+            if 'Number of Articles' in news:
+                all_no_articles.append(news['Number of Articles'])
+            if 'Number of Events' in news:
+                all_no_events.append(news['Number of Events'])
 
     def _check_driver(self):
         if not self.driver:
@@ -100,6 +292,11 @@ class CrunchBaseScrapper:
         self._check_driver()
         profile_type = [cell.web_element.text for cell in find_all(S(".profile-type"))]
         return profile_type[0] if profile_type else ""
+
+    def _get_profile_name(self):
+        self._check_driver()
+        profile_name = [cell.web_element.text for cell in find_all(S(".profile-name"))]
+        return profile_name if profile_name else ""
 
     def _get_location(self):
         self._check_driver()
@@ -122,7 +319,7 @@ class CrunchBaseScrapper:
         if Button("READ MORE").exists():
             click(Button("READ MORE"))
         about = [cell.web_element.text for cell in find_all(S("description-card > div > span"))]
-        short_about = about[0]
+        short_about = about
         long_about = ", ".join(about[1:])
         return short_about, long_about
 
@@ -136,32 +333,79 @@ class CrunchBaseScrapper:
             obj[key] = value
         return obj
 
+    def _get_highlights2(self):
+        self._check_driver()
+        obj = {}
+        highlight_element = S("profile-section > section-card > mat-card > div > div > fields-card > ul > li")
+        highlight_list = [cell.web_element.text.split("\n") for cell in find_all(highlight_element)]
+        res = list(map(lambda x: (", ".join(x[:-1]).strip(), x[-1]), highlight_list))
+        for key, value in res:
+            obj[key] = value
+        return obj
+
+    def _get_highlights3(self):
+        self._check_driver()
+        obj = {}
+        highlight_element = S("profile-section > section-card > mat-card > div > div > big-values-card > div")
+        highlight_list = [cell.web_element.text.split("\n") for cell in find_all(highlight_element)]
+        res = list(map(lambda x: (", ".join(x[:-1]).strip(), x[-1]), highlight_list))
+        for key, value in res:
+            obj[key] = value
+        return obj
+
+    def _get_details(self):
+        self._check_driver()
+        obj = {}
+        detail_element = S("row-card > profile-section > section-card > mat-card > div > div > fields-card > ul > li")
+        detail_list = [cell.web_element.text.split("\n") for cell in find_all(detail_element)]
+        res = list(map(lambda x: (", ".join(x[:1]).strip(), x[1:]), detail_list))
+        for key, value in res:
+            obj[key] = value
+        return obj
+
+    def _get_recentNews(self):
+        self._check_driver()
+        obj = {}
+        recentNews_element = S("profile-section > section-card > mat-card > div > div > big-values-card")
+        recentNews_list = [cell.web_element.text.split("\n") for cell in find_all(recentNews_element)]
+        res = list(map(lambda x: (", ".join(x[:1]).strip(), x[1:]), recentNews_list))
+        for key, value in res:
+            obj[key] = value
+        return obj
+
 
 all_rnklst = []
+all_profile_type = []
 all_names = []
+all_websites = []
 all_acquired_by = []
 all_abouts = []
 all_locations = []
 all_no_employees = []
 all_industries = []
 all_ipo_status = []
+all_ipo_dates = []
 all_founded_date = []
 all_hqs = []
 all_founders = []
 all_operating_status = []
 all_hub_tags = []
+all_related_hubs = []
 all_last_funding_types = []
 all_company_types = []
+all_investor_type = []
 all_investment_stages = []
 all_no_investors = []
 all_no_funding_rounds = []
 all_total_funding_amt = []
 all_no_funds = []
+all_funds_raised = []
 all_no_investments = []
 all_no_diversity_investments = []
 all_no_exits = []
 all_stock_symbols = []
 all_no_lead_investors = []
+all_no_lead_investments = []
 all_no_acquisitions = []
 all_no_current_team = []
 all_no_board_members = []
@@ -172,6 +416,8 @@ all_monthly_visits = []
 all_monthly_visit_growth = []
 all_no_articles = []
 all_no_events = []
+all_date = []
+temp_list = []
 
 big_array = [all_rnklst, all_names, all_acquired_by, all_abouts, all_locations,
              all_no_employees, all_industries, all_ipo_status, all_founded_date,
@@ -185,34 +431,52 @@ big_array = [all_rnklst, all_names, all_acquired_by, all_abouts, all_locations,
              all_monthly_visit_growth, all_no_articles, all_no_events]
 
 # Script Starts Here
-cbs = CrunchBaseScrapper()
-cbs.go_company_ranking(1)
-cbs.scrape_information()
+a = 1
+b = 51
+for i in range(a, b):
+    cbs = CrunchBaseScrapper()
+    cbs.go_company_ranking(i)
+    all_rnklst.append(i)
+    cbs.scrape_information()
+    all_date.append(datetime.today().strftime('%Y-%m-%d'))
+    for j in big_array:
+        if len(j) < (i - a + 1):
+            j.append("NA")
+        if len(j) > (i - a + 1):
+            print("error at company rank " + str(i))
+            break
+    kill_browser()
 
 
 
 # combine list into dataframe and print
 df = pd.DataFrame({
     'CrunchBase Ranking': all_rnklst,
-    'Company Name/Organisation Name': all_names,
+    'Profile Type': all_profile_type,
+    'Organisation Name': all_names,
     'Acquired by': all_acquired_by,
+    'About': all_abouts,
     'Location': all_locations,
     'Number of Employees': all_no_employees,
     'Industry': all_industries,
     'IPO Status': all_ipo_status,
+    'IPO Date': all_ipo_dates,
+    'Website': all_websites,
     'Founded Date': all_founded_date,
     'Headquarters': all_hqs,
     'Founders': all_founders,
     'Operating Status': all_operating_status,
     'Hub Tags': all_hub_tags,
+    'Related Hubs': all_related_hubs,
     'Last Funding Type': all_last_funding_types,
     'Company Type': all_company_types,
-    'Investment Stage': all_rnklst,
+    'Investor Type': all_investor_type,
+    'Investment Stage': all_investment_stages,
     'Number of Investors': all_no_investors,
     'Number Funding Rounds': all_no_funding_rounds,
     'Total Funding Amount': all_total_funding_amt,
-    'Number of exits': all_no_exits,
     'Number of Lead Investors': all_no_lead_investors,
+    'Number of Lead Investments': all_no_lead_investments,
     'Number of Acquisitions': all_no_acquisitions,
     'Number of Current Team Members (core team)': all_no_current_team,
     'Number of Board Members/Advisors': all_no_board_members,
@@ -224,16 +488,12 @@ df = pd.DataFrame({
     'Number of Articles': all_no_articles,
     'Number of Events': all_no_events,
     'Number of Funds': all_no_funds,
+    # 'Funds Raised (for VC)': all_funds_raised,
     'Number of Investments': all_no_investments,
     'Number of Diversity Investments': all_no_diversity_investments,
     'Number of Exits': all_no_exits,
-    'Related Hubs': all_hub_tags,
-    'Investor Type': all_rnklst,
     'Stock Symbol': all_stock_symbols,
-    'IPO Date': all_rnklst,
-    'Number of Sub': all_rnklst,
-    'Organisations': all_rnklst,
-    'Funding Rounds': all_rnklst,
-    'Funds Raised (for VC)': all_rnklst,
-    'Number of Lead Investments': all_rnklst
+    'Date Pulled': all_date
 })
+
+df.to_csv("1-50.csv")
