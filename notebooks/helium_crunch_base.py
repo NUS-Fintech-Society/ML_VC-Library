@@ -425,7 +425,7 @@ big_array = [all_rnklst, all_names, all_acquired_by, all_abouts, all_locations,
              all_last_funding_types, all_company_types, all_investment_stages,
              all_no_investors, all_no_funding_rounds, all_total_funding_amt,
              all_no_funds, all_no_investments, all_no_diversity_investments, all_no_exits,
-             all_stock_symbols, all_no_lead_investors, all_no_acquisitions,
+             all_stock_symbols, all_no_lead_investors, all_no_acquisitions, all_funds_raised,
              all_no_current_team, all_no_board_members, all_total_products_active,
              all_product_downloads, all_active_tech_count, all_monthly_visits,
              all_monthly_visit_growth, all_no_articles, all_no_events]
