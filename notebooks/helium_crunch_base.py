@@ -261,10 +261,8 @@ class CrunchBaseScrapper:
             highlights5 = self._get_highlights()
             if 'Total Products Active' in highlights5:
                 all_total_products_active.append(highlights5['Total Products Active'])
-                # print('total products active', highlights5['Number of Funding Rounds'])
             if 'Active Tech Count' in highlights5:
                 all_active_tech_count.append(highlights5['Active Tech Count'])
-                # print('acitve tech count', highlights5['Active Tech Count'])
             if 'Monthly Visits' in highlights5:
                 all_monthly_visits.append(highlights5['Monthly Visits'])
                 # print('number of investors', highlights5['Number of Investors'])
@@ -419,20 +417,22 @@ all_no_events = []
 all_date = []
 temp_list = []
 
-big_array = [all_rnklst, all_names, all_acquired_by, all_abouts, all_locations,
-             all_no_employees, all_industries, all_ipo_status, all_founded_date,
-             all_hqs, all_founders, all_operating_status, all_hub_tags,
-             all_last_funding_types, all_company_types, all_investment_stages,
+big_array = [all_rnklst, all_profile_type, all_names, all_acquired_by,
+             all_abouts, all_locations, all_no_employees, all_industries,
+             all_ipo_status, all_ipo_dates, all_websites, all_founded_date, all_hqs,
+             all_founders, all_operating_status, all_hub_tags, all_related_hubs,
+             all_last_funding_types, all_company_types, all_investor_type, all_investment_stages,
              all_no_investors, all_no_funding_rounds, all_total_funding_amt,
-             all_no_funds, all_no_investments, all_no_diversity_investments, all_no_exits,
-             all_stock_symbols, all_no_lead_investors, all_no_acquisitions, all_funds_raised,
+             all_no_lead_investors, all_no_lead_investments, all_no_acquisitions,
              all_no_current_team, all_no_board_members, all_total_products_active,
              all_product_downloads, all_active_tech_count, all_monthly_visits,
-             all_monthly_visit_growth, all_no_articles, all_no_events]
+             all_monthly_visit_growth, all_no_articles, all_no_events, all_no_funds,
+             all_funds_raised, all_no_investments, all_no_diversity_investments,
+             all_no_exits, all_stock_symbols, all_date]
 
 # Script Starts Here
 a = 1
-b = 51
+b = 500
 for i in range(a, b):
     cbs = CrunchBaseScrapper()
     cbs.go_company_ranking(i)
@@ -496,4 +496,4 @@ df = pd.DataFrame({
     'Date Pulled': all_date
 })
 
-df.to_csv("1-50.csv")
+df.to_csv("1-500.csv")
