@@ -488,7 +488,7 @@ df = pd.DataFrame({
     'Number of Articles': all_no_articles,
     'Number of Events': all_no_events,
     'Number of Funds': all_no_funds,
-    # 'Funds Raised (for VC)': all_funds_raised,
+    'Funds Raised (for VC)': all_funds_raised,
     'Number of Investments': all_no_investments,
     'Number of Diversity Investments': all_no_diversity_investments,
     'Number of Exits': all_no_exits,
