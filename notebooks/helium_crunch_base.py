@@ -62,7 +62,7 @@ class CrunchBaseScrapper:
         if profile_type == "INVESTMENT FIRM":
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             all_profile_type.append(profile_type)
-            ## Summary Page
+            # Summary Page
             # general info
             if about is not None:
                 all_abouts.append(about[0])
@@ -116,7 +116,7 @@ class CrunchBaseScrapper:
             if 'Company Type' in details:
                 all_company_types.append(details['Company Type'])
 
-            ##Financials Page
+            # Financials Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/investor_financials")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -134,7 +134,7 @@ class CrunchBaseScrapper:
             if 'Total Fund Raised' in highlights2:
                 all_funds_raised.append(highlights2['Total Fund Raised'])
 
-            ##Investments Page
+            # Investments Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/recent_investments")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -142,7 +142,7 @@ class CrunchBaseScrapper:
             if 'Number of Lead Investments' in highlights3:
                 all_no_lead_investments.append(highlights3['Number of Lead Investments'])
 
-            ##People Page
+            # People Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/people")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -152,7 +152,7 @@ class CrunchBaseScrapper:
             if 'Number of Current Team' in highlights4:
                 all_no_board_members.append(highlights4['Number of Current Team'])
 
-            ##Technology Page
+            # Technology Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/technology")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -168,7 +168,7 @@ class CrunchBaseScrapper:
             if 'Downloads Last 30 Days' in highlights5:
                 all_product_downloads.append(highlights5['Downloads Last 30 Days'])
 
-            ##Signals & News Page
+            # Signals & News Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/signals_and_news")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -181,7 +181,7 @@ class CrunchBaseScrapper:
         if profile_type == "ORGANIZATION":
             all_profile_type.append(profile_type)
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            ## Summary Page
+            # Summary Page
             # general info
             if about is not None:
                 all_abouts.append(about[0])
@@ -231,7 +231,7 @@ class CrunchBaseScrapper:
             if 'Company Type' in details:
                 all_company_types.append(details['Company Type'])
 
-            ## Financials Page
+            # Financials Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/company_financials")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -248,7 +248,7 @@ class CrunchBaseScrapper:
             if 'IPO Date' in highlights3:
                 all_ipo_dates.append(highlights3['IPO Date'])
 
-            ## People Page
+            # People Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/people")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -259,7 +259,7 @@ class CrunchBaseScrapper:
             if 'Number of Current Team' in highlights4:
                 all_no_board_members.append(highlights4['Number of Current Team'])
 
-            ## Technology Page
+            # Technology Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/technology")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -278,7 +278,7 @@ class CrunchBaseScrapper:
             if 'Downloads Last 30 Days' in highlights5:
                 all_product_downloads.append(highlights5['Downloads Last 30 Days'])
 
-            ##Signals & News Page
+            # Signals & News Page
             go_to(
                 f"https://www.crunchbase.com/organization/{profile_name[0].lower()}/signals_and_news")
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
