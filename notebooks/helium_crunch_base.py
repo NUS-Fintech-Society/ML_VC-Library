@@ -4,6 +4,7 @@ from helium import *
 import selenium as selenium
 from datetime import datetime
 from selenium.webdriver import ChromeOptions
+from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import time
 
@@ -34,11 +35,16 @@ class CrunchBaseScrapper:
     def go_company_ranking(self, ranking):
         if not self.driver:
             raise Exception("Driver not initialised")
-        go_to(
-            f"https://www.crunchbase.com/search/organization.companies/field/organizations/rank_org_company/{ranking}")
-        wait_until(Text("Organization Name").exists)
-        if Text("Press & Hold").exists():
-            print("the blocker came on cb")
+        go_to(f"https://www.crunchbase.com/search/organization.companies/field/organizations/rank_org_company/{ranking}")
+        time.sleep(3)
+        if Text("Please verify you are a human").exists():
+            element = self.driver.find_element_by_id('px-captcha').find_element_by_tag_name("iframe")
+            print(element)
+            ActionChains(self.driver).click_and_hold(element).perform()
+            time.sleep(5)
+            ActionChains(self.driver).release(element).perform()
+            time.sleep(3)
+
         if Text("Organization Name").exists():
             click(Link(below="Organization Name"))
             time.sleep(3)
