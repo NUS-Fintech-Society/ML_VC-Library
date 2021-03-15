@@ -370,9 +370,9 @@ class CrunchBaseScrapper:
     def _get_recentNews(self):
         self._check_driver()
         obj = {}
-        recentNews_element = S("profile-section > section-card > mat-card > div > div > big-values-card")
-        recentNews_list = [cell.web_element.text.split("\n") for cell in find_all(recentNews_element)]
-        res = list(map(lambda x: (", ".join(x[:1]).strip(), x[1:]), recentNews_list))
+        recent_news_element = S("profile-section > section-card > mat-card > div > div > big-values-card")
+        recent_news_list = [cell.web_element.text.split("\n") for cell in find_all(recent_news_element)]
+        res = list(map(lambda x: (", ".join(x[:1]).strip(), x[1:]), recent_news_list))
         for key, value in res:
             obj[key] = value
         return obj
