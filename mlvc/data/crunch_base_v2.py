@@ -30,7 +30,8 @@ class CrunchBaseScrapper_v2:
         all_names = []
         all_links = []
         for i in range(start, end, step):
-            self.driver = start_chrome(headless=self.headless, options=self.options)
+            if not self.driver:
+                self.driver = start_chrome(headless=self.headless, options=self.options)
             self._go_company_ranking(i)
             name_list = [cell.web_element.text for cell in find_all(
                 S("div > grid-row > grid-cell > div > field-formatter > identifier-formatter > a",
@@ -42,7 +43,7 @@ class CrunchBaseScrapper_v2:
                 all_names.append(name)
             for link in link_list:
                 all_links.append(link)
-            kill_browser()
+            # kill_browser()
         df = pd.DataFrame({'Company Name': all_names,
                            'URL': all_links})
         return df
