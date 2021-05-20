@@ -29,8 +29,10 @@ def main():
         df = pd.read_csv("test.csv")
         df = CrunchBaseScrapper(headless=False).fetch_data(start=0, end=len(df), data=df)
         now = datetime.now().strftime("%Y%m%d")
+        start = 0
+        end = len(df)
         #print(df)
-        df.to_csv(f"./{config.DATA_SAVE_DIR}/{now}_{config.START_RANKING}_{config.END_RANKING}.csv", index=False)
+        df.to_csv(f"./{config.DATA_SAVE_DIR}/{now}_{start}_{end}_full.csv", index=False)
 
 
 if __name__ == "__main__":
