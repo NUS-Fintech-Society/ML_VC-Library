@@ -5,6 +5,7 @@ from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import time
+import logging
 
 class CrunchBaseScrapper_v2:
     driver = None
@@ -12,7 +13,7 @@ class CrunchBaseScrapper_v2:
     url_header = 'company_url'
 
     def __init__(self, headless=False):
-        self.options = selenium.webdriver.ChromeOptions()
+        self.options = selenium.webdriver.FirefoxOptions()
         self.options.add_argument('--start-maximized')
         self.headless = headless
 
@@ -27,7 +28,7 @@ class CrunchBaseScrapper_v2:
         go_to(f"https://www.crunchbase.com/search/organization.companies/field/organizations/rank_org_company/{ranking}")
         time.sleep(3)
         if Text("Please verify you are a human").exists():
-            element = self.driver.find_element_by_id('px-captcha').find_element_by_tag_name("iframe")
+            element = self.driver.find_element_by_id('px-captcha')
             ActionChains(self.driver).click_and_hold(element).perform()
             time.sleep(5)
             ActionChains(self.driver).release(element).perform()
@@ -37,19 +38,16 @@ class CrunchBaseScrapper_v2:
         all_names = []
         all_links = []
         for i in range(start, end, step):
+            print(f"{start} to {end}. Currently at : {i}")
             if not self.driver:
-                self.driver = start_chrome(headless=self.headless, options=self.options)
-
+                self.driver = start_firefox(headless=self.headless, options=self.options)
+            elif (((step - start) / 15) % 400 == 0):
+                self.driver.close()
+                time.sleep(3)
+                self.driver = start_firefox(headless=self.headless, options=self.options)
+            
             self._go_company_ranking(i)
             time.sleep(2)
-            
-            if Text("Please verify you are a human").exists():
-                element = self.driver.find_element_by_id('px-captcha').find_element_by_tag_name("iframe")
-                ActionChains(self.driver).click_and_hold(element).perform()
-                time.sleep(5)
-                ActionChains(self.driver).release(element).perform()
-                time.sleep(3)
-                self._go_company_ranking(i)
             
             name_list = [cell.web_element.text for cell in find_all(
                 S("div > grid-row > grid-cell > div > field-formatter > identifier-formatter > a",
