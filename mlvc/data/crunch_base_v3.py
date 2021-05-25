@@ -19,29 +19,96 @@ icon_mapping = {
 }
 
 
-class CrunchBaseScrapper:
+class CrunchBaseScrapper_v3:
     driver = None
+    profile_type = 	'profile_type'
+    url = 'url'
+    about = 'about'	
+    name = 'name'	
+    location = 'location'
+    employee_no	= 'employee_no'
+    investor_type = 'investor_type'	
+    website = 'website'	
+    no_funds = 'no_funds'	
+    no_acquisition = 'no_acquisition'	
+    no_investments = 'no_investments'	
+    no_diversity_investments = 'no_diversity_investments'	
+    no_exits = 'no_exits'	
+    industries = 'industries'
+    founded_date = 'founded_date'	
+    founders = 'founders'	
+    operating_status = 'operating_status'	
+    last_funding_types = 'last_funding_types'
+    hqs ='hqs'
+    stock_symbols ='stock_symbols'	
+    related_hubs = 'related_hubs'	
+    company_types = 'company_types'	
+    no_funding_rounds = 'no_funding_rounds'	
+    funds_raised = 'funds_raised'	
+    ipo_dates = 'ipo_dates'
+    no_lead_investments	= 'no_lead_investments'
+    total_products_active = 'total_products_active'	
+    active_tech_count = 'active_tech_count'	
+    monthly_visits = 'monthly_visits'	
+    monthly_visit_growth = 'monthly_visit_growth'	
+    no_articles	= 'no_articles	'
+    no_events = 'no_events'
+    rank = 'rank'	
+    ipo_status	='ipo_status'
+    total_funding_amt	='total_funding_amt'
+    no_investors = 'no_investors'
+    hub_tags = 'hub_tags'	
+    no_lead_investors = 'no_lead_investors'
+    product_downloads = 'product_downloads'
+    investment_stages = 'investment_stages'
+    
 
     def __init__(self, headless=False):
         self.options = selenium.webdriver.ChromeOptions()
         self.options.add_argument('--start-maximized')
         self.headless = headless
+    
+    @staticmethod
+    def create_empty_header_file(filepath):
+        df = pd.DataFrame({ CrunchBaseScrapper_v3.profile_type: [], CrunchBaseScrapper_v3.url: [], CrunchBaseScrapper_v3.about: [], CrunchBaseScrapper_v3.name: [], CrunchBaseScrapper_v3.location: [], 
+                           CrunchBaseScrapper_v3.employee_no: [], CrunchBaseScrapper_v3.investor_type: [], CrunchBaseScrapper_v3.website: [],
+                           CrunchBaseScrapper_v3.no_funds: [], CrunchBaseScrapper_v3.no_acquisition: [], CrunchBaseScrapper_v3.no_investments: [],
+                           CrunchBaseScrapper_v3.no_diversity_investments: [], CrunchBaseScrapper_v3.no_exits: [], CrunchBaseScrapper_v3.industries: [],
+                           CrunchBaseScrapper_v3.founded_date: [], CrunchBaseScrapper_v3.founders: [], CrunchBaseScrapper_v3.operating_status: [],
+                           CrunchBaseScrapper_v3.last_funding_types: [], CrunchBaseScrapper_v3.hqs: [], CrunchBaseScrapper_v3.stock_symbols: [], 
+                           CrunchBaseScrapper_v3.related_hubs: [], CrunchBaseScrapper_v3.company_types: [], CrunchBaseScrapper_v3.no_funding_rounds: [],
+                           CrunchBaseScrapper_v3.funds_raised: [], CrunchBaseScrapper_v3.ipo_dates: [], CrunchBaseScrapper_v3.no_lead_investments: [], 
+                           CrunchBaseScrapper_v3.total_products_active: [], CrunchBaseScrapper_v3.active_tech_count: [], CrunchBaseScrapper_v3.monthly_visits: [],
+                           CrunchBaseScrapper_v3.monthly_visit_growth: [], CrunchBaseScrapper_v3.no_articles: [], CrunchBaseScrapper_v3.no_events: [],
+                           CrunchBaseScrapper_v3.rank: [], CrunchBaseScrapper_v3.ipo_status: [], CrunchBaseScrapper_v3.total_funding_amt: [], CrunchBaseScrapper_v3.no_investors: [],
+                           CrunchBaseScrapper_v3.hub_tags: [], CrunchBaseScrapper_v3.no_lead_investors: [], CrunchBaseScrapper_v3.product_downloads: [],
+                           CrunchBaseScrapper_v3.investment_stages: [],})
+        
+        df.to_csv(filepath, index=False)
 
-    def fetch_data(self, start, end, data):
+    def fetch_data(self, start, end, data, backup_filepath=None):
         df = pd.DataFrame()
         df1 = data
-        for i in range(len(df1)):
-            self.driver = start_chrome(headless=self.headless, options=self.options)
-            obj = self.scrape_information(df1['URL'].iloc[i])
+        #for i in range(len(df1)): 
+        for i in range(10):
+            if not self.driver:
+                self.driver = start_chrome(headless=self.headless, options=self.options)
+
+            obj = self.scrape_information(df1['company_url'].iloc[i])
             obj['rank'] = i
             df = pd.DataFrame([obj]) if df.empty else df.append([obj])
-            kill_browser()
+            #kill_browser()
+            
+            if backup_filepath:
+                df = pd.DataFrame([obj]) if df.empty else df.append([obj])
+                df.to_csv(backup_filepath, mode='a', header=False, index=False)
+        
         return df
 
-    def _go_company_URL(self, ranking):
+    def _go_company_URL(self, url):
         if not self.driver:
             raise Exception("Driver not initialised")
-        go_to(f"{ranking}")
+        go_to(f"{url}")
         time.sleep(3)
         if Text("Please verify you are a human").exists():
             element = self.driver.find_element_by_id('px-captcha').find_element_by_tag_name("iframe")
@@ -52,9 +119,9 @@ class CrunchBaseScrapper:
 
         print("Org exists, clicking now")
         time.sleep(3)
-
-    def scrape_information(self, ranking):
-        self._go_company_URL(ranking)
+        
+    def scrape_information(self, url):
+        self._go_company_URL(url)
 
         output = {}
 
@@ -67,6 +134,7 @@ class CrunchBaseScrapper:
         news = self._get_recentNews()
 
         output['profile_type'] = profile_type
+        output['url'] = url
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         # check if its investment firm
