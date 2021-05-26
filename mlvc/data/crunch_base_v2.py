@@ -33,40 +33,7 @@ class CrunchBaseScrapper_v2:
             ActionChains(self.driver).release(element).perform()
             time.sleep(3)
 
-    def fetch_data(self, start=100001, end=300000, step=15, backup_filepath=None):
-        all_names = []
-        all_links = []
-        for i in range(start, end, step):
-            if not self.driver:
-                self.driver = start_chrome(headless=self.headless, options=self.options)
-
-            self._go_company_ranking(i)
-            time.sleep(2)
-            
-            if Text("Please verify you are a human").exists():
-                element = self.driver.find_element_by_id('px-captcha').find_element_by_tag_name("iframe")
-                ActionChains(self.driver).click_and_hold(element).perform()
-                time.sleep(5)
-                ActionChains(self.driver).release(element).perform()
-                time.sleep(3)
-                self._go_company_ranking(i)
-            
-            name_list = [cell.web_element.text for cell in find_all(
-                S("div > grid-row > grid-cell > div > field-formatter > identifier-formatter > a",
-                  below="Organization Name"))]
-            
-            link_list = [cell.web_element.get_attribute("href") for cell in find_all(
-                S("div > grid-row > grid-cell > div > field-formatter > identifier-formatter > a",
-                  below="Organization Name"))]
-
-            if backup_filepath:
-                df = pd.DataFrame({ self.name_header: name_list, self.url_header: link_list })
-                df.to_csv(backup_filepath, mode='a', header=False, index=False)
-            
-            all_names.append(name_list)
-            all_links.append(link_list)
-
-        return pd.DataFrame({ self.name_header: all_names, self.url_header: all_links })
+    
 
     def _check_driver(self):
         if not self.driver:
