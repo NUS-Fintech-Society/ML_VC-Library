@@ -20,7 +20,7 @@ icon_mapping = {
     'M20,7h-4V5c0-1.1-0.9-2-2-2h-4C8.9,3,8,3.9,8,5v2H4C2.9,7,2,7.9,2,9l0,11c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V9C22,7.9,21.1,7,20,7z M14,7h-4V5h4V7z': 'hiring_status'
 }
 
-ignored_column = [' ', 'also_known_as', 'legal_name', 'contact_email', 'phone_number']
+ignored_column = [' ', 'also_known_as', 'legal_name', 'contact_email', 'phone_number', 'rank']
 
 class CrunchBaseScrapper:
     company_name = 'company_name'
@@ -31,7 +31,6 @@ class CrunchBaseScrapper:
     about = 'about'
     location = 'location'
     employee = 'employee'
-    rank = 'rank'
     investor = 'investor'
     hiring_status = 'hiring_status'
     investor_type = 'investor_type'
@@ -84,7 +83,6 @@ class CrunchBaseScrapper:
         location,
         employee,
         hiring_status,
-        rank,
         investor,
         investor_type,
         website,
@@ -159,7 +157,6 @@ class CrunchBaseScrapper:
             CrunchBaseScrapper.location: [],
             CrunchBaseScrapper.employee: [],
             CrunchBaseScrapper.hiring_status: [],
-            CrunchBaseScrapper.rank: [],
             CrunchBaseScrapper.investor: [],
             CrunchBaseScrapper.investor_type: [],
             CrunchBaseScrapper.website: [],
