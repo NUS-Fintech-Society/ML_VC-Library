@@ -20,7 +20,7 @@ icon_mapping = {
     'M20,7h-4V5c0-1.1-0.9-2-2-2h-4C8.9,3,8,3.9,8,5v2H4C2.9,7,2,7.9,2,9l0,11c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V9C22,7.9,21.1,7,20,7z M14,7h-4V5h4V7z': 'hiring_status'
 }
 
-ignored_column = [' ', 'also_known_as', 'legal_name', 'rank', 'contact_email', 'phone_number', 'transaction_name']
+ignored_column = ['	', ' ', '', 'also_known_as', 'legal_name', 'rank', 'contact_email', 'phone_number', 'transaction_name']
 
 class CrunchBaseScrapper:
     company_name:str = 'company_name'
