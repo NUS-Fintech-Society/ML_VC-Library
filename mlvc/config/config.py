@@ -1,13 +1,9 @@
-import logging
-
-LOGGING_LEVEL = logging.INFO
-
 DATA_SAVE_DIR = "datasets"
+
+COMPANY_LIST_FILE = "company_data_1_5000"
 
 START_RANKING = 194382
 
 END_RANKING = 200000
 
-STEP_RANKING = 15
-
-start = 0
+BACKUP = True
