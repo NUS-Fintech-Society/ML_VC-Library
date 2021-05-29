@@ -44,8 +44,10 @@ def main():
         if not os.path.isfile(csv_file):
             CrunchBaseScrapper.create_empty_header_file(csv_file, file_type=options.type)
 
+        scraper = CrunchBaseScrapper()
+
         if options.type == "list":            
-            CrunchBaseScrapper.fetch_company_list(
+            scraper.fetch_company_list(
                 driver,
                 csv_file,
                 backup=config.BACKUP,
@@ -55,7 +57,7 @@ def main():
 
         elif options.type == "information":
             companies = pd.read_csv(f"./{config.DATA_SAVE_DIR}/{config.COMPANY_LIST_FILE}.csv")
-            output = CrunchBaseScrapper.fetch_company_data(
+            output = scraper.fetch_company_data(
                 driver, 
                 companies, 
                 csv_file,

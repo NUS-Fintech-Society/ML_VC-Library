@@ -6,6 +6,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import time
 import logging
+from mlvc.utility.utils import title_to_underscore
 
 icon_mapping = {
     'M12,2C8.1,2,5,5.1,5,9c0,5.2,7,13,7,13s7-7.8,7-13C19,5.1,15.9,2,12,2z M12,11.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S13.4,11.5,12,11.5z': 'location',
@@ -19,51 +20,116 @@ icon_mapping = {
     'M20,7h-4V5c0-1.1-0.9-2-2-2h-4C8.9,3,8,3.9,8,5v2H4C2.9,7,2,7.9,2,9l0,11c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V9C22,7.9,21.1,7,20,7z M14,7h-4V5h4V7z': 'hiring_status'
 }
 
+ignored_column = [' ', 'also_known_as', 'legal_name', 'contact_email', 'phone_number']
+
 class CrunchBaseScrapper:
     company_name = 'company_name'
     company_url = 'company_url'
+
+    name = 'name'
     profile_type = 'profile_type'
-    url = 'url'
-    about = 'about'	
-    name = 'name'	
+    about = 'about'
     location = 'location'
-    employee_no	= 'employee_no'
-    investor_type = 'investor_type'	
-    website = 'website'	
-    no_funds = 'no_funds'	
-    no_acquisition = 'no_acquisition'	
-    no_investments = 'no_investments'	
-    no_diversity_investments = 'no_diversity_investments'	
-    no_exits = 'no_exits'	
+    employee = 'employee'
+    rank = 'rank'
+    investor = 'investor'
+    hiring_status = 'hiring_status'
+    investor_type = 'investor_type'
+    website = 'website'
     industries = 'industries'
-    founded_date = 'founded_date'	
-    founders = 'founders'	
-    operating_status = 'operating_status'	
-    last_funding_types = 'last_funding_types'
-    hqs ='hqs'
-    stock_symbols ='stock_symbols'	
-    related_hubs = 'related_hubs'	
-    company_types = 'company_types'	
-    no_funding_rounds = 'no_funding_rounds'	
-    no_lead_investors = 'no_lead_investors'
-    no_investors = 'no_investors'
-    funds_raised = 'funds_raised'	
-    ipo_dates = 'ipo_dates'
-    no_lead_investments	= 'no_lead_investments'
-    no_board_members = 'no_board_members'
-    no_current_team = 'no_current_team'
-    total_products_active = 'total_products_active'	
-    active_tech_count = 'active_tech_count'	
-    monthly_visits = 'monthly_visits'	
-    monthly_visit_growth = 'monthly_visit_growth'	
-    no_articles	= 'no_articles	'
-    no_events = 'no_events'
-    ipo_status	='ipo_status'
-    total_funding_amt ='total_funding_amt'
-    hub_tags = 'hub_tags'	
+    founded_date = 'founded_date'
+    closed_date = 'closed_date'
+    founders = 'founders'
+    operating_status = 'operating_status'
+    last_funding_type = 'last_funding_type'
+    stock_symbols = 'stock_symbol'
+    hqs = 'headquarters_regions'
+    related_hubs = 'related_hubs'
+    company_type = 'company_type'
+    ipo_status = 'ipo_status'
+    hub_tags = 'hub_tags'
     product_downloads = 'product_downloads'
-    investment_stages = 'investment_stages'
-    
+    investment_stage = 'investment_stage'
+    no_funding_rounds = 'number_of_funding_rounds'
+    no_lead_investors = 'number_of_lead_investors'
+    no_investors = 'number_of_investors'
+    funds_raised = 'funds_raised'
+    no_funds = 'number_of_funds'
+    total_funding_amt ='total_funding_amount'
+    ipo_dates = 'ipo_date'
+    total_fund_raised = 'total_fund_raised'
+    no_investments = 'number_of_investments'
+    no_lead_investments = 'number_of_lead_investments'
+    no_diversity_investments = 'number_of_diversity_investments'
+    no_acquisition = 'number_of_acquisitions'
+    no_exits = 'number_of_exits'
+    no_board_members = 'number_of_board_member_and_advisor_profiles'
+    no_current_team = 'number_of_employee_profiles'
+    total_products_active = 'total_products_active'
+    monthly_visits = 'monthly_visits'
+    monthly_visit_growth = 'monthly_visits_growth'
+    active_tech_count = 'active_tech_count'
+    no_articles = 'number_of_articles'
+    no_events = 'number_of_events'
+    valuation_at_ipo = 'valuation_at_ipo'
+    money_raised_at_ipo = 'money_raised_at_ipo'
+    last_funding = 'last_funding'
+    ipo_share_price = 'ipo_share_price'
+    downloads_last_30_days = 'downloads_last_30_days'
+
+    company_information_columns = [
+        name,
+        profile_type,
+        about,
+        location,
+        employee,
+        hiring_status,
+        rank,
+        investor,
+        investor_type,
+        website,
+        industries,
+        founded_date,
+        closed_date,
+        founders,
+        operating_status,
+        last_funding_type,
+        stock_symbols,
+        hqs,
+        related_hubs,
+        company_type,
+        ipo_status,
+        hub_tags,
+        product_downloads,
+        investment_stage,
+        no_funding_rounds,
+        no_lead_investors,
+        no_investors,
+        funds_raised,
+        no_funds,
+        total_funding_amt,
+        ipo_dates,
+        total_fund_raised,
+        no_investments,
+        no_lead_investments,
+        no_diversity_investments,
+        no_acquisition,
+        no_exits,
+        no_board_members,
+        no_current_team,
+        total_products_active,
+        monthly_visits,
+        monthly_visit_growth,
+        active_tech_count,
+        no_articles,
+        no_events,
+        valuation_at_ipo,
+        money_raised_at_ipo,
+        last_funding,
+        ipo_share_price,
+        downloads_last_30_days
+        ]
+
     @staticmethod
     def create_empty_header_file(filepath, file_type='information'):
         if file_type == 'information':
@@ -87,48 +153,57 @@ class CrunchBaseScrapper:
     @staticmethod
     def get_empty_company_information():
         return pd.DataFrame({ 
-            CrunchBaseScrapper.profile_type: [], 
-            CrunchBaseScrapper.url: [], 
-            CrunchBaseScrapper.about: [], 
-            CrunchBaseScrapper.name: [], 
-            CrunchBaseScrapper.location: [], 
-            CrunchBaseScrapper.employee_no: [], 
-            CrunchBaseScrapper.investor_type: [], 
+            CrunchBaseScrapper.name: [],
+            CrunchBaseScrapper.profile_type: [],
+            CrunchBaseScrapper.about: [],
+            CrunchBaseScrapper.location: [],
+            CrunchBaseScrapper.employee: [],
+            CrunchBaseScrapper.hiring_status: [],
+            CrunchBaseScrapper.rank: [],
+            CrunchBaseScrapper.investor: [],
+            CrunchBaseScrapper.investor_type: [],
             CrunchBaseScrapper.website: [],
-            CrunchBaseScrapper.no_funds: [], 
-            CrunchBaseScrapper.no_acquisition: [], 
-            CrunchBaseScrapper.no_investments: [],
-            CrunchBaseScrapper.no_diversity_investments: [], 
-            CrunchBaseScrapper.no_exits: [], 
             CrunchBaseScrapper.industries: [],
-            CrunchBaseScrapper.founded_date: [], 
-            CrunchBaseScrapper.founders: [], 
+            CrunchBaseScrapper.founded_date: [],
+            CrunchBaseScrapper.closed_date: [],
+            CrunchBaseScrapper.founders: [],
             CrunchBaseScrapper.operating_status: [],
-            CrunchBaseScrapper.last_funding_types: [], 
-            CrunchBaseScrapper.hqs: [], 
-            CrunchBaseScrapper.stock_symbols: [], 
-            CrunchBaseScrapper.related_hubs: [], 
-            CrunchBaseScrapper.company_types: [], 
-            CrunchBaseScrapper.no_funding_rounds: [],
-            CrunchBaseScrapper.funds_raised: [], 
-            CrunchBaseScrapper.ipo_dates: [], 
-            CrunchBaseScrapper.no_lead_investments: [], 
-            CrunchBaseScrapper.total_products_active: [], 
-            CrunchBaseScrapper.active_tech_count: [], 
-            CrunchBaseScrapper.monthly_visits: [],
-            CrunchBaseScrapper.monthly_visit_growth: [], 
-            CrunchBaseScrapper.no_articles: [], 
-            CrunchBaseScrapper.no_events: [],
-            CrunchBaseScrapper.ipo_status: [], 
-            CrunchBaseScrapper.total_funding_amt: [], 
-            CrunchBaseScrapper.no_investors: [],
-            CrunchBaseScrapper.hub_tags: [], 
-            CrunchBaseScrapper.no_lead_investors: [], 
+            CrunchBaseScrapper.last_funding_type: [],
+            CrunchBaseScrapper.stock_symbols: [],
+            CrunchBaseScrapper.hqs: [],
+            CrunchBaseScrapper.related_hubs: [],
+            CrunchBaseScrapper.company_type: [],
+            CrunchBaseScrapper.ipo_status: [],
+            CrunchBaseScrapper.hub_tags: [],
             CrunchBaseScrapper.product_downloads: [],
-            CrunchBaseScrapper.investment_stages: [],
+            CrunchBaseScrapper.investment_stage: [],
+            CrunchBaseScrapper.no_funding_rounds: [],
+            CrunchBaseScrapper.no_lead_investors: [],
+            CrunchBaseScrapper.no_investors: [],
+            CrunchBaseScrapper.funds_raised: [],
+            CrunchBaseScrapper.no_funds: [],
+            CrunchBaseScrapper.total_funding_amt: [],
+            CrunchBaseScrapper.ipo_dates: [],
+            CrunchBaseScrapper.total_fund_raised: [],
+            CrunchBaseScrapper.no_investments: [],
+            CrunchBaseScrapper.no_lead_investments: [],
+            CrunchBaseScrapper.no_diversity_investments: [],
+            CrunchBaseScrapper.no_acquisition: [],
+            CrunchBaseScrapper.no_exits: [],
             CrunchBaseScrapper.no_board_members: [],
-            CrunchBaseScrapper.no_current_team: []
-            })
+            CrunchBaseScrapper.no_current_team: [],
+            CrunchBaseScrapper.total_products_active: [],
+            CrunchBaseScrapper.monthly_visits: [],
+            CrunchBaseScrapper.monthly_visit_growth: [],
+            CrunchBaseScrapper.active_tech_count: [],
+            CrunchBaseScrapper.no_articles: [],
+            CrunchBaseScrapper.no_events: [],
+            CrunchBaseScrapper.valuation_at_ipo: [],
+            CrunchBaseScrapper.money_raised_at_ipo: [],
+            CrunchBaseScrapper.last_funding: [],
+            CrunchBaseScrapper.ipo_share_price: [],
+            CrunchBaseScrapper.downloads_last_30_days: []
+        })
 
     
     def fetch_data(self, driver, output_filepath, backup=True, start=100001, end=300000):
@@ -136,7 +211,7 @@ class CrunchBaseScrapper:
         link_list = []
         for i in range(start, end, 15):
             logging.info(f'Processing companies ranked {i} to {i+15}')
-            is_navigation_successful = self._go_company_ranking(i)
+            is_navigation_successful = self._go_company_ranking(driver, i)
             if not is_navigation_successful:
                 continue
 
@@ -164,17 +239,24 @@ class CrunchBaseScrapper:
         for c in companies.values:
             company = c[1]
             logging.info(f'Currently scraping {company}')
-            is_navigation_successful = self._go_company_information(company)
+            is_navigation_successful = self._go_company_information(driver, company)
 
             if not is_navigation_successful:
                 logging.info(f'Unable to navigate to {company}, proceeding to next..')
                 continue
 
-            data = self._scrape_company_information()
-
+            data = self._scrape_company_information(driver, company)
             output.append(data, ignore_index=True)
             if backup:
-                CrunchBaseScrapper.get_empty_company_information().append(data, ignore_index=True).to_csv(backup_filepath, mode='a', header=False, index=False)
+                CrunchBaseScrapper.get_empty_company_information().append(
+                    data, 
+                    ignore_index=True
+                    ).to_csv(
+                        output_filepath, 
+                        mode='a', 
+                        header=False, 
+                        index=False
+                    )
         return output
 
     def _go_company_ranking(self, driver, ranking):
@@ -205,221 +287,58 @@ class CrunchBaseScrapper:
     def _get_value_from_key(self, dictionary, key):
         return dictionary[key] if key in dictionary else ''
 
-    def _scrape_company_information(self, company, sleep_duration=2):
+    def _scrape_company_information(self, driver, company, sleep_duration=2):
         profile_type = self._get_profile_type()
         general_info = self._get_general_information()
         about = self._get_about()
-        highlights = self._get_highlights()
+        summary_highlights = self._get_highlights()
+
+        driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
         details = self._get_details()
-        news = self._get_recentNews()
 
         output = {}
+        output['name'] = company
         output['profile_type'] = profile_type
-        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+        output['about'] = about[0] if about is not None else ''
+        output = {**output, **general_info}
+        output = {**output, **details}
 
-        # check if its investment firm
-        if profile_type == 'INVESTMENT FIRM':
-            # Summary Page
-            output['about'] = about[0] if about is not None else ''
-            output['name'] = company
+        if Link('Financials').exists():
+            click(Link('Financials'))
+            time.sleep(sleep_duration)
+            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+            big_values = self._get_big_value_cards()
+            field_values = self._get_field_cards() 
+            output = {**output, **field_values, **big_values}
 
-            output['location'] = self._get_value_from_key(general_info, 'location')
-            output['employee_no'] = self._get_value_from_key(general_info, 'employee')
-            output['investor_type'] = self._get_value_from_key(general_info, 'investor')
-            output['investment_stages'] = self._get_value_from_key(general_info, 'investment_stage')
-            output['website'] = self._get_value_from_key(general_info, 'website')
+        if Link('Investments').exists():
+            click(Link('Investments'))
+            time.sleep(sleep_duration)
+            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+            big_values = self._get_big_value_cards()
+            field_values = self._get_field_cards() 
+            output = {**output, **field_values, **big_values}
 
-            output['no_funds'] = self._get_value_from_key(highlights, 'Number of Funds')
-            output['no_acquisition'] = self._get_value_from_key(highlights, 'Number of Acquisitions')
-            output['no_investments'] = self._get_value_from_key(highlights, 'Number of Investments')
-            output['no_diversity_investments'] = self._get_value_from_key(highlights, 'Number of Diversity Investments')
-            output['no_exits'] = self._get_value_from_key(highlights, 'Number of Exits')
-            output['total_funding_amt'] = self._get_value_from_key(highlights, 'Total Funding Amount')
+        if Link('People').exists():
+            click(Link('People'))
+            time.sleep(sleep_duration)
+            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+            people_highlights = self._get_highlights()
+            output = {**output, **people_highlights}
 
-            output['industries'] = self._get_value_from_key(details, 'Industries')
-            output['founded_date'] = self._get_value_from_key(details, 'Founded Date')
-            output['founders'] = self._get_value_from_key(details, 'Founders')
-            output['operating_status'] = self._get_value_from_key(details, 'Operating Status')
-            output['last_funding_types'] = self._get_value_from_key(details, 'Last Funding Type')
-            output['hqs'] = self._get_value_from_key(details, 'Headquarters Regions')
-            output['stock_symbols'] = self._get_value_from_key(details, 'Stock Symbol')
-            output['related_hubs'] = self._get_value_from_key(details, 'Related Hubs')
-            output['hub_tags'] = self._get_value_from_key(details, 'Hub Tags')
-            output['company_types'] = self._get_value_from_key(details, 'Company Type')
+        if Link('Technology').exists():
+            click(Link('Technology'))
+            time.sleep(sleep_duration)
+            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+            technology_highlights = self._get_highlights()
+            output = {**output, **technology_highlights}
 
-            # Financial Page
-            if Link('Financials').exists():
-                click(Link('Financials'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            
-            highlights2 = self._get_highlights3()
-            highlights3 = self._get_highlights2()
-            if 'Number of Funding Rounds' in highlights2:
-                output['no_funding_rounds'] = highlights2['Number of Funding Rounds']
-            if 'Number of Lead Investors' in highlights2:
-                output['no_lead_investors'] = highlights2['Number of Lead Investors']
-            if 'Number of Investors' in highlights2:
-                output['no_investors'] = highlights2['Number of Investors']
-            if 'Total Fund Raised' in highlights2:
-                output['funds_raised'] = highlights2['Total Fund Raised']
-            if 'IPO Date' in highlights3:
-                output['ipo_dates'] = highlights3['IPO Date']
-
-            # Investments Page
-            if Link('Investments').exists():
-                click(Link('Investments'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            highlights3 = self._get_highlights()
-            if 'Number of Lead Investments' in highlights3:
-                output['no_lead_investments'] = highlights3['Number of Lead Investments']
-
-            # People Page
-            if Link('People').exists():
-                click(Link('People'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            highlights4 = self._get_highlights()
-            if 'Number of Board Members / Advisors' in highlights4:
-                output['no_board_members'] = highlights4['Number of Board Members / Advisors']
-            if 'Number of Current Team' in highlights4:
-                output['no_current_team'] = highlights4['Number of Current Team']
-
-            # Technology Page
-            if Link('Technology').exists():
-                click(Link('Technology'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            highlights5 = self._get_highlights()
-            if 'Total Products Active' in highlights5:
-                output['total_products_active'] = highlights5['Total Products Active']
-            if 'Active Tech Count' in highlights5:
-                output['active_tech_count'] = highlights5['Active Tech Count']
-            if 'Monthly Visits' in highlights5:
-                output['monthly_visits'] = highlights5['Monthly Visits']
-            if 'Monthly Visits Growth' in highlights5:
-                output['monthly_visit_growth'] = highlights5['Monthly Visits Growth']
-            if 'Downloads Last 30 Days' in highlights5:
-                output['product_downloads'] = highlights5['Downloads Last 30 Days']
-
-            # Signals & News Page
-            if Link('Signals & News').exists():
-                click(Link('Signals & News'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            news = self._get_recentNews()
-            if 'Number of Articles' in news:
-                output['no_articles'] = news['Number of Articles']
-            if 'Number of Events' in news:
-                output['no_events'] = news['Number of Events']
-
-        elif profile_type == 'ORGANIZATION':
-            # Summary Page
-            # general info
-            output['name'] = company
-            if about is not None:
-                output['about'] = about[0]
-            if 'location' in general_info:
-                output['location'] = general_info['location']
-            if 'employee' in general_info:
-                output['employee_no'] = general_info['employee']
-            if 'ipo_status' in general_info:
-                output['ipo_status'] = general_info['ipo_status']
-            if 'website' in general_info:
-                output['website'] = general_info['website']
-
-            # Highlights
-            if 'Number of Acquisitions' in highlights:
-                output['no_acquisition'] = highlights['Number of Acquisitions']
-            if 'Number of Investments' in highlights:
-                output['no_investments'] = highlights['Number of Investments']
-            if 'Total Funding Amount' in highlights:
-                output['total_funding_amt'] = highlights['Total Funding Amount']
-            if 'Number of Current Team Members' in highlights:
-                output['no_current_team'] = highlights['Number of Current Team Members']
-            if 'Number of Investors' in highlights:
-                output['no_investors'] = highlights['Number of Investors']
-
-            # Details
-            if 'Industries' in details:
-                output['industries'] = details['Industries']
-            if 'Headquarters Regions' in details:
-                output['hqs'] = details['Headquarters Regions']
-            if 'Founded Date' in details:
-                output['founded_date'] = details['Founded Date']
-            if 'Founders' in details:
-                output['founders'] = details['Founders']
-            if 'Operating Status' in details:
-                output['operating_status'] = details['Operating Status']
-            if 'Last Funding Type' in details:
-                output['last_funding_types'] = details['Last Funding Type']
-            if 'Related Hubs' in details:
-                output['related_hubs'] = details['Related Hubs']
-            if 'Hub Tags' in details:
-                output['hub_tags'] = details['Hub Tags']
-            if 'Company Type' in details:
-                output['company_types'] = details['Company Type']
-
-            # Financials Page
-            if Link('Financials').exists():
-                click(Link('Financials'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            highlights2 = self._get_highlights()
-            highlights3 = self._get_highlights2()
-
-            if 'Number of Funding Rounds' in highlights2:
-                output['no_funding_rounds'] = highlights2['Number of Funding Rounds']
-            if 'Number of Lead Investors' in highlights2:
-                output['no_lead_investors'] = highlights2['Number of Lead Investors']
-            if 'Number of Lead Investments' in highlights2:
-                output['no_lead_investments'] = highlights2['Number of Lead Investments']
-            if 'Number of Exits' in highlights2:
-                output['no_exits'] = highlights2['Number of Exits']
-            if 'IPO Date' in highlights3:
-                output['ipo_dates'] = highlights3['IPO Date']
-
-            # People Page
-            if Link('People').exists():
-                click(Link('People'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            highlights4 = self._get_highlights()
-
-            if 'Number of Board Members / Advisors' in highlights4:
-                output['no_board_members'] = highlights4['Number of Board Members / Advisors']
-            if 'Number of Current Team' in highlights4:
-                output['no_current_team'] = highlights4['Number of Current Team']
-
-            # Technology Page
-            if Link('Technology').exists():
-                click(Link('Technology'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            # highlights
-            highlights5 = self._get_highlights()
-            if 'Total Products Active' in highlights5:
-                output['total_products_active'] = highlights5['Total Products Active']
-            if 'Active Tech Count' in highlights5:
-                output['active_tech_count'] = highlights5['Active Tech Count']
-            if 'Monthly Visits' in highlights5:
-                output['monthly_visits'] = highlights5['Monthly Visits']
-            if 'Monthly Visits Growth' in highlights5:
-                output['monthly_visit_growth'] = highlights5['Monthly Visits Growth']
-            if 'Downloads Last 30 Days' in highlights5:
-                output['product_downloads'] = highlights5['Downloads Last 30 Days']
-
-            # Signals & News Page
-            if Link('Signals & News').exists():
-                click(Link('Signals & News'))
-                time.sleep(sleep_duration)
-            self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            news = self._get_recentNews()
-            if 'Number of Articles' in news:
-                output['no_articles'] = news['Number of Articles']
-            if 'Number of Events' in news:
-                output['no_events'] = news['Number of Events']
+        if Link('Signals & News').exists():
+            click(Link('Signals & News'))
+            time.sleep(sleep_duration)
+            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+            news = self._get_recent_news()
+            output = {**output, **news}
 
         return output
 
@@ -442,7 +361,7 @@ class CrunchBaseScrapper:
         general_list = [(cell.web_element.find_element_by_tag_name('path').get_attribute('d'), cell.web_element.text)
                         for cell in items]
         for key, value in general_list:
-            obj[icon_mapping[key]] = value
+            obj = self._add_to_company_information(obj, icon_mapping[key] , value)
         return obj
 
     def _get_about(self):
@@ -453,48 +372,40 @@ class CrunchBaseScrapper:
         long_about = ', '.join(about[1:])
         return short_about, long_about
 
-    def _get_highlights(self):
-        obj = {}
-        highlight_element = S('profile-section > section-card > mat-card > div > div > anchored-values > div > a > div')
-        highlight_list = [cell.web_element.text.split('\n') for cell in find_all(highlight_element)]
-        res = list(map(lambda x: (', '.join(x[:-1]).strip(), x[-1]), highlight_list))
-        for key, value in res:
-            obj[key] = value
-        return obj
-
-    def _get_highlights2(self):
-        obj = {}
-        highlight_element = S('profile-section > section-card > mat-card > div > div > fields-card > ul > li')
-        highlight_list = [cell.web_element.text.split('\n') for cell in find_all(highlight_element)]
-        res = list(map(lambda x: (', '.join(x[:-1]).strip(), x[-1]), highlight_list))
-        for key, value in res:
-            obj[key] = value
-        return obj
-
-    def _get_highlights3(self):
-        obj = {}
-        highlight_element = S('profile-section > section-card > mat-card > div > div > big-values-card > div')
-        highlight_list = [cell.web_element.text.split('\n') for cell in find_all(highlight_element)]
-        res = list(map(lambda x: (', '.join(x[:-1]).strip(), x[-1]), highlight_list))
-        for key, value in res:
-            obj[key] = value
-        return obj
 
     def _get_details(self):
         obj = {}
-        detail_element = S('row-card > profile-section > section-card > mat-card > div > div > fields-card > ul > li')
+        detail_element = S("row-card > profile-section > section-card > mat-card > div > div > fields-card > ul > li")
         detail_list = [cell.web_element.text.split('\n') for cell in find_all(detail_element)]
         res = list(map(lambda x: (', '.join(x[:1]).strip(), x[1:]), detail_list))
         for key, value in res:
-            obj[key] = value
+            obj = self._add_to_company_information(obj, title_to_underscore(key), value)
         return obj
 
-    def _get_recentNews(self):
+    def _get_values_from_card(self, path):
         obj = {}
-        recent_news_element = S('profile-section > section-card > mat-card > div > div > big-values-card')
-        recent_news_list = [cell.web_element.text.split('\n') for cell in find_all(recent_news_element)]
-        res = list(map(lambda x: (', '.join(x[:1]).strip(), x[1:]), recent_news_list))
+        element = S(path)
+        lists = [cell.web_element.text.split('\n') for cell in find_all(element)]
+        res = list(map(lambda x: (', '.join(x[:-1]).strip(), x[-1]), lists))
         for key, value in res:
-            obj[key] = value
+            obj = self._add_to_company_information(obj, title_to_underscore(key), value)
         return obj
+
+    def _get_highlights(self):
+        return self._get_values_from_card('profile-section > section-card > mat-card > div > div > anchored-values > div > a > div')
+
+    def _get_field_cards(self):
+        return self._get_values_from_card('profile-section > section-card > mat-card > div > div > fields-card > ul > li')
+
+    def _get_big_value_cards(self):
+        return self._get_values_from_card('profile-section > section-card > mat-card > div > div > big-values-card > div')
+
+    def _get_recent_news(self):
+        return self._get_values_from_card('profile-section > section-card > mat-card > div > div > big-values-card')
     
+    def _add_to_company_information(self, obj, key, value):
+        if key in self.company_information_columns:
+            obj[key] = value
+        elif key not in self.company_information_columns and key not in ignored_column:
+            logging.info(f'The key {key} with value {value} exists but is not stored in excel')
+        return obj
