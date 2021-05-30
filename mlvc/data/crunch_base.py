@@ -253,8 +253,8 @@ class CrunchBaseScrapper:
             is_navigation_successful = self._go_company_information(driver, company)
 
             if not is_navigation_successful:
-                logging.info(f'Unable to navigate to {company}, proceeding to next..')
-                continue
+                logging.info(f'Unable to navigate to {company}, proceeding to exit script..')
+                break
 
             data = self._scrape_company_information(driver, company)
             output.append(data, ignore_index=True)
