@@ -77,6 +77,8 @@ class CrunchBaseScrapper:
     acquired_by = 'acquired_by'
     announced_date = 'announced_date'
     price = 'price'
+    diversity_spotlight = 'diversity_spotlight_(us_only)'
+    sub_organization_of = 'sub-organization_of'
 
     company_information_columns = [
         name,
@@ -130,7 +132,9 @@ class CrunchBaseScrapper:
         downloads_last_30_days,
         acquired_by,
         announced_date,
-        price
+        price,
+        diversity_spotlight,
+        sub_organization_of
         ]
 
     @staticmethod
@@ -207,7 +211,9 @@ class CrunchBaseScrapper:
             CrunchBaseScrapper.downloads_last_30_days: [],
             CrunchBaseScrapper.acquired_by: [],
             CrunchBaseScrapper.announced_date: [],
-            CrunchBaseScrapper.price: []
+            CrunchBaseScrapper.price: [],
+            CrunchBaseScrapper.diversity_spotlight: [],
+            CrunchBaseScrapper.sub_organization_of: []
         })
 
     
