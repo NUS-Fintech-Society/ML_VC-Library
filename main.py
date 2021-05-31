@@ -34,24 +34,35 @@ def main():
         
     if options.mode == "download_data":
         now = datetime.now().strftime("%Y%m%d")
+        from mlvc.data.web_driver import WebDriver
         from mlvc.data.crunch_base import CrunchBaseScrapper
 
+        driver = WebDriver.start()
+
         csv_file = f"./{config.DATA_SAVE_DIR}/{options.mode}_{options.type}.csv"
+        
         if not os.path.isfile(csv_file):
             CrunchBaseScrapper.create_empty_header_file(csv_file, file_type=options.type)
 
+        scraper = CrunchBaseScrapper()
+
         if options.type == "list":            
-            CrunchBaseScrapper().fetch_company_list(
-                start=config.START_RANKING, 
-                end=config.END_RANKING, 
-                step=config.STEP_RANKING, 
-                backup_filepath=csv_file)
+            scraper.fetch_company_list(
+                driver,
+                csv_file,
+                backup=config.BACKUP,
+                start=config.START_RANKING,
+                end=config.END_RANKING,
+                )
 
         elif options.type == "information":
-            
-            companies = pd.read_csv(f"./{config.DATA_SAVE_DIR}/company_url.csv")
-            output = CrunchBaseScrapper().fetch_company_data(companies, backup_filepath=csv_file)
-            output.to_csv(f"./{config.DATA_SAVE_DIR}/{now}_full.csv", index=False)
+            companies = pd.read_csv(f"./{config.DATA_SAVE_DIR}/{config.COMPANY_LIST_FILE}.csv")
+            output = scraper.fetch_company_data(
+                driver, 
+                companies, 
+                csv_file,
+                backup=config.BACKUP
+                )
 
 if __name__ == "__main__":
     main()
