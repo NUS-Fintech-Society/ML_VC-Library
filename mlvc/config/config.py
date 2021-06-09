@@ -1,14 +1,12 @@
-import logging
+DATA_SAVE_DIR = "datasets"
 
-<<<<<<< Updated upstream
 LOGGING_LEVEL = logging.INFO
 
-=======
-COMPANY_LIST_FILE = "20001-25000"
+COMPANY_LIST_FILE = "25001-30000"
 
-START_RANKING = 20001
+START_RANKING = 194382
 
-END_RANKING = 25000
+END_RANKING = 200000
 
 BACKUP = True
->>>>>>> Stashed changes
+
