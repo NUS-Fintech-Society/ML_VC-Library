@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns; 
 from sklearn.preprocessing import normalize
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from unsupervised_models import HierarchicalClustering, KMeansClustering
+from unsupervised_models import HierarchicalClustering, KMeansClustering, KPrototypeClustering
 
 
 if __name__ == "__main__":
@@ -40,18 +40,19 @@ if __name__ == "__main__":
     scaler = StandardScaler()
     scaled_features = scaler.fit_transform(features.dropna())
     
-    # # With unscaled features
-    # kmeans = KMeansClustering()
-    # kmeans.load_data(features.dropna())
-    # # kmeans.elbow_method()
-    # # kmeans.elbow_method(20)
-    # # kmeans.silhouette_method()
-    # kmeans.set_params(4)
-    # kmeans.fit_predict()
+    # With unscaled features
+    kmeans = KMeansClustering()
+    kmeans.load_data(features.dropna())
+    # kmeans.elbow_method()
+    # kmeans.elbow_method(20)
+    # kmeans.silhouette_method()
+    kmeans.set_params(4)
+    kmeans.fit_predict()
     # kmeans.kmeans_visual(1, 2)
     # kmeans.kmeans_visual(2, 3)
     # kmeans.kmeans_visual(3, 4)
     # kmeans.kmeans_visual(2, 4)
+    kmeans.centroid_position()
 
     # # With scaled features
     # kmeans = KMeansClustering()
@@ -68,6 +69,24 @@ if __name__ == "__main__":
     # kmeans.kmeans_visual(3, 4, scaler)
     # kmeans.kmeans_visual(2, 4, scaler)
 
+    # K-Prototype Clustering
+    features = companies[companies.columns.intersection(non_null_columns).tolist()]
+    cat_columns_selected = ["Profile Type", "Number of Employees", "IPO Status"]
+    numerical_col_selected = list(features.select_dtypes([np.number]).columns)
+    features_selected = numerical_col_selected + cat_columns_selected
+
+    df_kprototype = features[features_selected].dropna().reset_index(drop=True)
+
+    kprototype = KPrototypeClustering()
+    kprototype.load_data(df_kprototype)
+    kprototype.kprototype_elbow_method(10)
+    kprototype.set_params(3)
+    kprototype.fit_predict()
+    kprototype.kprototype_visual(1, 2)
+    kprototype.kprototype_visual(2, 3)
+    kprototype.kprototype_visual(3, 4)
+    kprototype.kprototype_visual(2, 4)
+    kprototype.centroid_position()
 
 
 

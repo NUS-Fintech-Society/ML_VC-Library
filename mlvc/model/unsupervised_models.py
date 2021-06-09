@@ -1,7 +1,9 @@
+from kmodes import kprototypes
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns; 
+import seaborn as sns
+from seaborn import categorical; 
 sns.set_style("darkgrid")
 
 from scipy.cluster.hierarchy import dendrogram, linkage
@@ -20,6 +22,7 @@ def null_value(df):
     result = pd.concat([num_null, percent_null], axis = 1, keys = ["Number of NA", "%"])
     return result
 
+##############  Hierarchical Clustering ######################
 class HierarchicalClustering:
     def __init__(self):
         self.data = None
@@ -264,7 +267,184 @@ class KMeansClustering:
         plt.show()
         
     # Interpreting the cluster centroids
-    def centroid_position(centers, columns):
+    def centroid_position(self):
+        centers = self.model.cluster_centers_
+        feature_names = self.feature_names
+
+        pd.set_option('display.float_format', lambda x: '%.3f' % x)
+        # pd.reset_option('display.float_format')
+        centers = pd.DataFrame(centers, columns= feature_names)
+        print(centers)
+
+##############  K-Prototype Clustering ######################
+class KPrototypeClustering:
+    def __init__(self):
+        self.data = None
+        self.matrix = None
+        self.model = None
+        self.pred = None
+        self.cat_columns = None
+        self.cat_columns_pos = None
+        self.num_columns = None
+        self.num_columns_pos = None
+
+        # Model params
+        self.n_clusters =  None
+        self.n_jobs =  None
+        self.init =  None
+        self.random_state =  None
+
+        # Visualisation
+        self.feature_names = np.array([])
+    
+    # Need to load pandas dataframe
+    def load_data(self, matrix, feature_names=np.array([])):
+        if (type(matrix) == pd.DataFrame):
+            self.cat_columns = list(matrix.select_dtypes("object").columns)
+            self.cat_columns_pos = [matrix.columns.get_loc(column_name) for column_name in self.cat_columns]
+
+            self.num_columns = list(matrix.select_dtypes(np.number).columns)
+            self.num_columns_pos = [matrix.columns.get_loc(column_name) for column_name in self.cat_columns]
+
+            self.data = matrix
+            self.data_display = matrix.iloc[:,self.num_columns_pos + self.cat_columns_pos]
+            self.matrix = matrix.to_numpy()
+            self.feature_names = self.data.columns.values
+        elif (type(matrix) == np.ndarray):
+            print("Please load pandas dataframe.")
+            # self.data = pd.DataFrame(matrix)
+            # self.matrix = matrix
+            # self.feature_names = feature_names
+
+        else:
+            print("Invalid data loaded.")
+    
+    def set_params(self, n_clusters, n_jobs = -1, init = 'Huang', random_state = 0):
+        self.n_clusters = n_clusters
+        self.n_jobs = n_jobs
+        self.init = init
+        self.random_state = random_state
+
+        # Creating the model
+        self.model = KPrototypes(
+            n_jobs = self.n_jobs, 
+            n_clusters = self.n_clusters, 
+            init = self.init, 
+            random_state = self.random_state)
+                
+    
+    def fit_predict(self):
+        if (self.matrix.any() and self.model):
+            self.pred = self.model.fit_predict(self.matrix, categorical=self.cat_columns_pos)
+        elif (not self.matrix.any()):
+            print("No data loaded")
+        else:
+            print("No model params set")
+
+    # Creating a elbow method plot
+    # Pick the cluster with the last significant decrease in WSS score
+    # (Reasonable trade-off between error and number of clusters)   
+    def kprototype_elbow_method(self,  max_clusters = 10, init = "Huang", random_state = 0):
+        cost = []
+        
+        scaled_features = self.matrix
+
+        for cluster in range(1, max_clusters):
+            print("Started" + str(cluster))
+            try:
+                print("Implementing Cluster " + str(cluster))
+                kprototype = KPrototypes(n_jobs = -1, n_clusters = cluster, init = init, random_state = random_state)
+                kprototype.fit_predict(scaled_features, categorical = self.cat_columns_pos)
+                cost.append(kprototype.cost_)
+                
+            except:
+                break
+
+        frame = pd.DataFrame(data = {"Clusters": range(1, len(cost)+1), "Cost": cost})
+        plt.figure(figsize = (12, 6))
+        sns.lineplot(frame["Clusters"], frame["Cost"], marker = "o")
+        plt.xlabel("Number of Clusters")
+        plt.ylabel("Cost")
+        plt.xticks(np.arange(1, len(cost)+1, 1))
+        plt.show()
+
+    # # Creating a silhouette method plot
+    # # Pick the cluster with the maximum score
+    # def silhouette_method(self, max_clusters = 10):
+
+    #     scaled_features = self.matrix
+    #     silhouette_coef = []
+        
+    #     # We start at 2 clusters for silhouette coefficient
+    #     for cluster in range(2, max_clusters):
+    #         kmeans = KMeans(init = "k-means++", n_clusters = cluster,
+    #                         n_init = 10, random_state = 42)
+    #         kmeans.fit(scaled_features)
+    #         score = silhouette_score(scaled_features, kmeans.labels_)
+    #         silhouette_coef.append(score)
+
+    #     frame = pd.DataFrame(data = {"Clusters": range(2,max_clusters), 
+    #                                 "Silhouette Coefficient": silhouette_coef})
+    #     plt.figure(figsize = (12, 6))
+    #     sns.lineplot(frame["Clusters"], 
+    #                 frame["Silhouette Coefficient"], marker = "o")
+    #     plt.xlabel("Number of Clusters")
+    #     plt.ylabel("Silhouette Coefficient")
+    #     plt.xticks(np.arange(2, max_clusters+1, 1))
+    #     plt.show()
+
+    
+    # Visualising the clusters    
+    def kprototype_visual(self, x1, x2, scaler = None, scaled = True):
+        
+        X = self.matrix
+        pred = self.model.labels_
+        centers = self.model.cluster_centroids_
+        feature_names = self.feature_names
+        
+        limit = X.shape[1]
+
+        if (x1 > limit or x2 > limit):
+            print("Invalid feature selected")
+            return None
+        
+        # Changing the selected feature to column index
+        x1 = x1 - 1
+        x2 = x2 - 1
+        
+        # Checking to see if a categorical variable was selected by accident
+        if (not (type(X[:, x1][0]) == float or type(X[:, x1][0]) == int)):
+            print("Categorical feature selected for x1")
+            return None
+        elif (not (type(X[:, x2][0]) == float or type(X[:, x2][0]) == int)):
+            print("Categorical feature selected for x2")
+            return None
+        
+        # Whether to plot to actual scale
+        if (scaled and scaler):
+            centers = scaler.inverse_transform(centers)
+            X = scaler.inverse_transform(X)
+            
+        plt.figure(figsize = (12, 6))
+        
+        sns.scatterplot(x = X[:, x1].reshape(-1),y = X[:, x2].reshape(-1),hue = pred,
+                    palette = sns.color_palette("Set2", n_colors=len(centers)))
+
+        sns.scatterplot(np.array([float(x) for x in centers[:,x1].reshape(-1)]), 
+                        np.array([float(x) for x in centers[:,x2].reshape(-1)]),
+                    color = 'black', s = 200, alpha = 0.5)
+        
+        if feature_names.any():
+            plt.xlabel(feature_names[x1])
+            plt.ylabel(feature_names[x2])
+            
+        plt.show()
+        
+    # Interpreting the cluster centroids
+    def centroid_position(self):
+
+        centers = self.model.cluster_centroids_
+        feature_names = self.feature_names
         pd.set_option('display.float_format', lambda x: '%.3f' % x)
         # pd.reset_option('display.float_format')
         centers = pd.DataFrame(centers, columns= feature_names)
@@ -302,14 +482,14 @@ if __name__ == "__main__":
     # hc.hierarchical_visual(5, 6)
 
 
-    # KMeans Clustering
-    non_null_col = null_value(companies)
-    non_null_columns = non_null_col[non_null_col["%"]<= 14].index.tolist()
-    df_numerical = companies.select_dtypes(include = np.number)
-    features = df_numerical[df_numerical.columns.intersection(non_null_columns).tolist()]
+    # # KMeans Clustering
+    # non_null_col = null_value(companies)
+    # non_null_columns = non_null_col[non_null_col["%"]<= 14].index.tolist()
+    # df_numerical = companies.select_dtypes(include = np.number)
+    # features = df_numerical[df_numerical.columns.intersection(non_null_columns).tolist()]
 
-    scaler = StandardScaler()
-    scaled_features = scaler.fit_transform(features.dropna())
+    # scaler = StandardScaler()
+    # scaled_features = scaler.fit_transform(features.dropna())
     
     # # With unscaled features
     # kmeans = KMeansClustering()
@@ -319,25 +499,47 @@ if __name__ == "__main__":
     # # kmeans.silhouette_method()
     # kmeans.set_params(4)
     # kmeans.fit_predict()
-    # kmeans.kmeans_visual(1, 2)
-    # kmeans.kmeans_visual(2, 3)
-    # kmeans.kmeans_visual(3, 4)
-    # kmeans.kmeans_visual(2, 4)
+    # # kmeans.kmeans_visual(1, 2)
+    # # kmeans.kmeans_visual(2, 3)
+    # # kmeans.kmeans_visual(3, 4)
+    # # kmeans.kmeans_visual(2, 4)
+    # kmeans.centroid_position()
 
-    # With scaled features
-    kmeans = KMeansClustering()
-    kmeans.load_data(scaled_features, features.dropna().columns.values)
-    #kmeans.add_scaler
-    # kmeans.elbow_method()
-    # kmeans.elbow_method(20)
-    # kmeans.silhouette_method()
-    kmeans.set_params(4)
-    kmeans.fit_predict()
-    #kmeans.kmeans_visual(1, 2)
-    kmeans.kmeans_visual(1, 2, scaler)
-    kmeans.kmeans_visual(2, 3, scaler)
-    kmeans.kmeans_visual(3, 4, scaler)
-    kmeans.kmeans_visual(2, 4, scaler)
+
+    # # With scaled features
+    # kmeans = KMeansClustering()
+    # kmeans.load_data(scaled_features, features.dropna().columns.values)
+    # #kmeans.add_scaler
+    # # kmeans.elbow_method()
+    # # kmeans.elbow_method(20)
+    # # kmeans.silhouette_method()
+    # kmeans.set_params(4)
+    # kmeans.fit_predict()
+    # #kmeans.kmeans_visual(1, 2)
+    # kmeans.kmeans_visual(1, 2, scaler)
+    # kmeans.kmeans_visual(2, 3, scaler)
+    # kmeans.kmeans_visual(3, 4, scaler)
+    # kmeans.kmeans_visual(2, 4, scaler)
+
+
+    # # K-Prototype Clustering
+    # features = companies[companies.columns.intersection(non_null_columns).tolist()]
+    # cat_columns_selected = ["Profile Type", "Number of Employees", "IPO Status"]
+    # numerical_col_selected = list(features.select_dtypes([np.number]).columns)
+    # features_selected = numerical_col_selected + cat_columns_selected
+
+    # df_kprototype = features[features_selected].dropna().reset_index(drop=True)
+
+    # kprototype = KPrototypeClustering()
+    # kprototype.load_data(df_kprototype)
+    # # kprototype.kprototype_elbow_method(10)
+    # kprototype.set_params(3)
+    # kprototype.fit_predict()
+    # # kprototype.kprototype_visual(1, 2)
+    # # kprototype.kprototype_visual(2, 3)
+    # # kprototype.kprototype_visual(3, 4)
+    # # kprototype.kprototype_visual(2, 4)
+    # kprototype.centroid_position()
 
 
 
