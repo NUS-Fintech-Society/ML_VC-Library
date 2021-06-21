@@ -37,7 +37,7 @@ def main():
         from mlvc.data.web_driver import WebDriver
         from mlvc.data.crunch_base import CrunchBaseScrapper
 
-        driver = WebDriver.start()
+        # driver = WebDriver.start()
 
         csv_file = f"./{config.DATA_SAVE_DIR}/{options.mode}_{options.type}.csv"
         
@@ -48,7 +48,6 @@ def main():
 
         if options.type == "list":            
             scraper.fetch_company_list(
-                driver,
                 csv_file,
                 backup=config.BACKUP,
                 start=config.START_RANKING,
@@ -57,8 +56,7 @@ def main():
 
         elif options.type == "information":
             companies = pd.read_csv(f"./{config.DATA_SAVE_DIR}/{config.COMPANY_LIST_FILE}.csv")
-            output = scraper.fetch_company_data(
-                driver, 
+            scraper.fetch_company_data(
                 companies, 
                 csv_file,
                 backup=config.BACKUP
