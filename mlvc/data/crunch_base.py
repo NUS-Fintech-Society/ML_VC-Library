@@ -326,6 +326,7 @@ class CrunchBaseScrapper:
         output['about'] = about[0] if about is not None else ''
         output = {**output, **general_info}
         output = {**output, **details}
+        driver.execute_script('window.scrollTo(0, 0);')
 
         if Link('Financials').exists():
             click(Link('Financials'))
@@ -334,6 +335,7 @@ class CrunchBaseScrapper:
             big_values = self._get_big_value_cards()
             field_values = self._get_field_cards() 
             output = {**output, **field_values, **big_values}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         if Link('Investments').exists():
             click(Link('Investments'))
@@ -342,6 +344,7 @@ class CrunchBaseScrapper:
             big_values = self._get_big_value_cards()
             field_values = self._get_field_cards() 
             output = {**output, **field_values, **big_values}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         if Link('People').exists():
             click(Link('People'))
@@ -349,6 +352,7 @@ class CrunchBaseScrapper:
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             people_highlights = self._get_highlights()
             output = {**output, **people_highlights}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         if Link('Technology').exists():
             click(Link('Technology'))
@@ -356,6 +360,7 @@ class CrunchBaseScrapper:
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             technology_highlights = self._get_highlights()
             output = {**output, **technology_highlights}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         if Link('Signals & News').exists():
             click(Link('Signals & News'))
@@ -363,6 +368,7 @@ class CrunchBaseScrapper:
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             news = self._get_recent_news()
             output = {**output, **news}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         return output
 
