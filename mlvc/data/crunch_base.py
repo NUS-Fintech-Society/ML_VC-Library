@@ -252,7 +252,7 @@ class CrunchBaseScrapper:
             output.to_csv(output_filepath, index=False)
 
     def fetch_company_data(self, companies, output_filepath, backup=True):
-        pool = mp.Pool(8)
+        pool = mp.Pool(6)
 
         for result in pool.imap(self.run_process, companies.values):
             if not result:
