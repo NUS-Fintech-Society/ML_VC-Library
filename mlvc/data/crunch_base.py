@@ -1,3 +1,4 @@
+from mlvc.data.web_driver import WebDriver
 from helium import *
 import selenium as selenium
 from datetime import datetime
@@ -6,7 +7,11 @@ from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import time
 import logging
-from mlvc.utility.utils import title_to_underscore
+from mlvc.utility.utils import title_to_underscore, get_element_index_from_list
+from concurrent.futures import ThreadPoolExecutor, wait, ProcessPoolExecutor
+import threading, time, random
+from queue import Queue
+import multiprocessing as mp
 
 icon_mapping = {
     'M12,2C8.1,2,5,5.1,5,9c0,5.2,7,13,7,13s7-7.8,7-13C19,5.1,15.9,2,12,2z M12,11.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S13.4,11.5,12,11.5z': 'location',
@@ -217,7 +222,8 @@ class CrunchBaseScrapper:
         })
 
     
-    def fetch_data(self, driver, output_filepath, backup=True, start=100001, end=300000):
+    def fetch_data(self, output_filepath, backup=True, start=100001, end=300000):
+        driver = WebDriver.start()
         name_list = []
         link_list = []
         for i in range(start, end, 15):
@@ -245,22 +251,14 @@ class CrunchBaseScrapper:
             output = pd.DataFrame({ self.name_header: name_list, self.url_header: link_list })
             output.to_csv(output_filepath, index=False)
 
-    def fetch_company_data(self, driver, companies, output_filepath, backup=True):
-        output = CrunchBaseScrapper.get_empty_company_information()
-        for c in companies.values:
-            company = c[1]
-            logging.info(f'Currently scraping {company}')
-            is_navigation_successful = self._go_company_information(driver, company)
+    def fetch_company_data(self, companies, output_filepath, backup=True):
+        pool = mp.Pool(8)
 
-            if not is_navigation_successful:
-                logging.info(f'Unable to navigate to {company}, proceeding to exit script..')
+        for result in pool.imap(self.run_process, companies.values):
+            if not result:
                 break
-
-            data = self._scrape_company_information(driver, company)
-            output.append(data, ignore_index=True)
-            if backup:
-                CrunchBaseScrapper.get_empty_company_information().append(
-                    data, 
+            CrunchBaseScrapper.get_empty_company_information().append(
+                    result, 
                     ignore_index=True
                     ).to_csv(
                         output_filepath, 
@@ -268,7 +266,22 @@ class CrunchBaseScrapper:
                         header=False, 
                         index=False
                     )
-        return output
+
+    def run_process(self, company):
+        company = company[1]
+        driver = WebDriver.start()
+        logging.info(f'Currently scraping {company}')
+        is_navigation_successful = self._go_company_information(driver, company)
+
+        if not is_navigation_successful:
+            logging.info(f'Unable to navigate to {company}')
+            data = {}
+        else:
+            data = self._scrape_company_information(driver, company)
+        driver.quit()
+        return data
+            
+
 
     def _go_company_ranking(self, driver, ranking):
         url = f'https://www.crunchbase.com/search/organization.companies/field/organizations/rank_org_company/{ranking}'
@@ -298,11 +311,10 @@ class CrunchBaseScrapper:
     def _get_value_from_key(self, dictionary, key):
         return dictionary[key] if key in dictionary else ''
 
-    def _scrape_company_information(self, driver, company, sleep_duration=2):
+    def _scrape_company_information(self, driver, company, sleep_duration=1):
         profile_type = self._get_profile_type()
         general_info = self._get_general_information()
         about = self._get_about()
-        summary_highlights = self._get_highlights()
 
         driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
         details = self._get_details()
@@ -313,43 +325,56 @@ class CrunchBaseScrapper:
         output['about'] = about[0] if about is not None else ''
         output = {**output, **general_info}
         output = {**output, **details}
+        driver.execute_script('window.scrollTo(0, 0);')
 
-        if Link('Financials').exists():
-            click(Link('Financials'))
-            time.sleep(sleep_duration)
+        tabs = find_all(S('.mat-tab-link-container > .mat-tab-list > .mat-tab-links > a'))
+        tab_text = [tab.web_element.text for tab in tabs]
+
+        financial_index = get_element_index_from_list(tab_text, 'Financials')
+        if financial_index != -1:
+            click(tabs[financial_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             big_values = self._get_big_value_cards()
             field_values = self._get_field_cards() 
             output = {**output, **field_values, **big_values}
-
-        if Link('Investments').exists():
-            click(Link('Investments'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        investment_index = get_element_index_from_list(tab_text, 'Investments')
+        if investment_index != -1:
+            click(tabs[investment_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             big_values = self._get_big_value_cards()
             field_values = self._get_field_cards() 
             output = {**output, **field_values, **big_values}
-
-        if Link('People').exists():
-            click(Link('People'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        people_index = get_element_index_from_list(tab_text, 'People')
+        if people_index != -1:
+            click(tabs[people_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             people_highlights = self._get_highlights()
             output = {**output, **people_highlights}
-
-        if Link('Technology').exists():
-            click(Link('Technology'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        tech_index = get_element_index_from_list(tab_text, 'Technology')
+        if tech_index != -1:
+            click(tabs[tech_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             technology_highlights = self._get_highlights()
             output = {**output, **technology_highlights}
-
-        if Link('Signals & News').exists():
-            click(Link('Signals & News'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        news_index = get_element_index_from_list(tab_text, 'Signals & News')
+        if news_index != -1:
+            click(tabs[news_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             news = self._get_recent_news()
             output = {**output, **news}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         return output
 
