@@ -7,7 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import time
 import logging
-from mlvc.utility.utils import title_to_underscore
+from mlvc.utility.utils import title_to_underscore, get_element_index_from_list
 from concurrent.futures import ThreadPoolExecutor, wait, ProcessPoolExecutor
 import threading, time, random
 from queue import Queue
@@ -311,11 +311,10 @@ class CrunchBaseScrapper:
     def _get_value_from_key(self, dictionary, key):
         return dictionary[key] if key in dictionary else ''
 
-    def _scrape_company_information(self, driver, company, sleep_duration=2):
+    def _scrape_company_information(self, driver, company, sleep_duration=1):
         profile_type = self._get_profile_type()
         general_info = self._get_general_information()
         about = self._get_about()
-        summary_highlights = self._get_highlights()
 
         driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
         details = self._get_details()
@@ -326,43 +325,56 @@ class CrunchBaseScrapper:
         output['about'] = about[0] if about is not None else ''
         output = {**output, **general_info}
         output = {**output, **details}
+        driver.execute_script('window.scrollTo(0, 0);')
 
-        if Link('Financials').exists():
-            click(Link('Financials'))
-            time.sleep(sleep_duration)
+        tabs = find_all(S('.mat-tab-link-container > .mat-tab-list > .mat-tab-links > a'))
+        tab_text = [tab.web_element.text for tab in tabs]
+
+        financial_index = get_element_index_from_list(tab_text, 'Financials')
+        if financial_index != -1:
+            click(tabs[financial_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             big_values = self._get_big_value_cards()
             field_values = self._get_field_cards() 
             output = {**output, **field_values, **big_values}
-
-        if Link('Investments').exists():
-            click(Link('Investments'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        investment_index = get_element_index_from_list(tab_text, 'Investments')
+        if investment_index != -1:
+            click(tabs[investment_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             big_values = self._get_big_value_cards()
             field_values = self._get_field_cards() 
             output = {**output, **field_values, **big_values}
-
-        if Link('People').exists():
-            click(Link('People'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        people_index = get_element_index_from_list(tab_text, 'People')
+        if people_index != -1:
+            click(tabs[people_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             people_highlights = self._get_highlights()
             output = {**output, **people_highlights}
-
-        if Link('Technology').exists():
-            click(Link('Technology'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        tech_index = get_element_index_from_list(tab_text, 'Technology')
+        if tech_index != -1:
+            click(tabs[tech_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             technology_highlights = self._get_highlights()
             output = {**output, **technology_highlights}
-
-        if Link('Signals & News').exists():
-            click(Link('Signals & News'))
+            driver.execute_script('window.scrollTo(0, 0);')
             time.sleep(sleep_duration)
+
+        news_index = get_element_index_from_list(tab_text, 'Signals & News')
+        if news_index != -1:
+            click(tabs[news_index].web_element)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             news = self._get_recent_news()
             output = {**output, **news}
+            driver.execute_script('window.scrollTo(0, 0);')
 
         return output
 
