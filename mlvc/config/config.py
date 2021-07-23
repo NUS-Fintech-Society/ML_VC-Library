@@ -1,4 +1,4 @@
-DATA_SAVE_DIR = "datasets"
+DATA_SAVE_DIR = "data"
 
 COMPANY_LIST_FILE = "25001-30000"
 
