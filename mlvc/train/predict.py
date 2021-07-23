@@ -1,4 +1,4 @@
-from .Crunchbase import *
+from .crunchbase import *
 import pickle
 import ast
 

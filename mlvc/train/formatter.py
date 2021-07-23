@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 from sklearn.cluster import KMeans
-from .Kmeans import *
+from .kmeans import *
 
 
 def unlist_cat_cols_kmeans(df, listed_cat_cols_kmeans):

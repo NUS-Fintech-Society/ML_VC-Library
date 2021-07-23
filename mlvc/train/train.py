@@ -1,4 +1,4 @@
-from .Crunchbase import *
+from .crunchbase import *
 
 import pandas as pd
 import pickle
@@ -19,7 +19,7 @@ class Train():
         return df
 
     def train_model(self):
-        df = Crunchbase('Crunchbase').format_crunchbase()
+        df = Crunchbase().format_crunchbase()
         subset = df[['type_Group B', 'money_raised_at_ipo', 'number_of_acquisitions', 'type_Unicorn',
                      'employee_cat', 'valuation_at_ipo', 'number_of_investments', 'type_Group A',
                      'type_Emerging Unicorn', 'number_of_lead_investments', 'number_of_lead_investors',
