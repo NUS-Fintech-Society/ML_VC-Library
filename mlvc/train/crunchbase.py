@@ -69,9 +69,9 @@ class Crunchbase():
         tfidf_vectorizer_industries = TfidfVectorizer()
         tfidf_industries = tfidf_vectorizer_industries.fit_transform(ind['industries'])
         today = datetime.today().strftime('%Y-%m-%d')
-        pickle.dump(tfidf_vectorizer_industries, open(os.path.join(os.getcwd(), config.DATA_SAVE_DIR, f'tfidf_industries_{today}.pkl'), 'wb'))
+        pickle.dump(tfidf_vectorizer_industries, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'tfidf_industries_{today}.pkl'), 'wb'))
         kmeans_ind = KMeans(n_clusters=3).fit(tfidf_industries)
-        pickle.dump(kmeans_ind, open(os.path.join(os.getcwd(), config.DATA_SAVE_DIR, f'kmeans_industries_{today}.sav'), 'wb'))
+        pickle.dump(kmeans_ind, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'kmeans_industries_{today}.sav'), 'wb'))
         predicted_values_industry = kmeans_ind.predict(tfidf_industries)
 
         # clustering and one hot encoding related hubs
@@ -79,9 +79,9 @@ class Crunchbase():
         hubs.dropna(inplace=True)
         tfidf_vectorizer_hubs = TfidfVectorizer()
         tfidf_hubs = tfidf_vectorizer_hubs.fit_transform(hubs['related_hubs'])
-        pickle.dump(tfidf_vectorizer_hubs, open(os.path.join(os.getcwd(), config.DATA_SAVE_DIR, f'tfidf_hubs_{today}.pickle'), 'wb'))
+        pickle.dump(tfidf_vectorizer_hubs, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'tfidf_hubs_{today}.pickle'), 'wb'))
         kmeans_hubs = KMeans(n_clusters=3).fit(tfidf_hubs)
-        pickle.dump(kmeans_hubs, open(os.path.join(os.getcwd(), config.DATA_SAVE_DIR, f'kmeans_hubs_{today}.sav'), 'wb'))
+        pickle.dump(kmeans_hubs, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'kmeans_hubs_{today}.sav'), 'wb'))
         predicted_values_hubs = kmeans_hubs.predict(tfidf_hubs)
 
         ind_pred = pd.concat([ind['industries'], pd.Series(predicted_values_industry, index=ind.index)], axis=1)
