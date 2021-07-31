@@ -1,6 +1,7 @@
 from .crunchbase import *
 import pickle
 import ast
+import xgboost as xgb
 
 
 class Predict():
@@ -26,8 +27,8 @@ class Predict():
         emp = employees_to_le_single(input_values.get('employee'))
         fund_type_A, fund_type_B = grp_last_funding_type_single(input_values.get('last_funding_type'))
         comp_type = company_type_to_ohe_single(input_values.get('company_type'))
-        kmeans_ind = pickle.load(open('./Model/kmeans_industries_2021-07-25.sav', 'rb'))
-        tfidf_ind = pickle.load(open('./Model/tfidf_industries_2021-07-25.pkl', 'rb'))
+        kmeans_ind = pickle.load(open('./Model/kmeans_industries.sav', 'rb'))
+        tfidf_ind = pickle.load(open('./Model/tfidf_industries.pkl', 'rb'))
         ind = " ".join(ast.literal_eval(input_values.get('industries')))[0]
         ind_pred = kmeans_ind.predict(tfidf_ind.transform([ind]))[0]
         if ind_pred == 0:
@@ -42,10 +43,12 @@ class Predict():
                               input_values.get('number_of_lead_investors'), input_values.get('number_of_investors'),
                               input_values.get('number_of_employee_profiles'), input_values.get('number_of_events')]
 
-        model = pickle.load(open('./Model/final_model_2021-07-25.sav', 'rb'))
-        scaler = pickle.load(open('./Model/scaler_2021-07-25.pkl', 'rb'))
+        model_xgb_2 = xgb.Booster()
+        model_xgb_2.load_model('./Model/final_model.json')
+        scaler = pickle.load(open('./Model/scaler.pkl', 'rb'))
         scaled_input = scaler.transform(np.asarray(final_input_values).reshape(-1, 15))
-        pred = model.predict(scaled_input)
+        scaled_input_matrix = xgb.DMatrix(scaled_input)
+        pred = model_xgb_2.predict(scaled_input_matrix)
         final_pred = ''
         if pred[0] == 0:
             final_pred = final_pred + 'Private or Delisted'

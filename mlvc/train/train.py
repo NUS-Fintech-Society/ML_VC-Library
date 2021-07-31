@@ -20,10 +20,12 @@ class Train():
         -------
         dataframe
         """
+
         df = pd.read_csv('./Data/full_information_0_60k.csv')
         return df
 
     def train_model(self):
+      
         """Trains the model
         Returns
         -------
@@ -36,6 +38,7 @@ class Train():
                      'type_Group A', 'industries_type_0', 'number_of_employee_profiles',
                      'number_of_events',
                      'number_of_investors', 'total_products_active', 'type_For Profit', 'ipo_status']]
+        
         x = subset[subset.columns.drop('ipo_status')]
         y = subset[['ipo_status']]
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=2)
@@ -43,19 +46,25 @@ class Train():
         # scale data
         scaler = StandardScaler()
         # save the scaler
-        today = datetime.today().strftime('%Y-%m-%d')
         x_train_scaled = scaler.fit_transform(x_train)
-        pickle.dump(scaler, open(f"./Model/scaler_{today}.pkl", 'wb'))
+        pickle.dump(scaler, open('./Model/scaler.pkl', 'wb'))
         x_test_scaled = scaler.transform(x_test)
 
-        # transform imbalanced training data to balance it
+        # scale data
+        scaler = StandardScaler()
+        # save the scaler
+        x_train_scaled = scaler.fit_transform(x_train)
+        pickle.dump(scaler, open('./Model/scaler.pkl', 'wb'))
+        x_test_scaled = scaler.transform(x_test)
+
+        # transform data to balance it
         smote = SMOTE(random_state=42, sampling_strategy=0.5)
         x_train_scaled_smote, y_train_smote = smote.fit_resample(x_train_scaled, y_train)
 
         xgb = XGBClassifier()
         xgb.fit(x_train_scaled_smote, y_train_smote)
         # save the trained model
-        pickle.dump(xgb, open(f"./Model/final_model_{today}.sav", 'wb'))
+        xgb.save_model('./Model/final_model.json')
 
         y_train_pred_xgb = xgb.predict(x_train_scaled_smote)
         y_test_pred_xgb = xgb.predict(x_test_scaled)
