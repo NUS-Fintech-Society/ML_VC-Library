@@ -182,17 +182,6 @@ def elbow_plot(data, start, end):
     plt.show()
 
 
-# def test_fit_and_predict(clusters, seed, iterations, data):
-#     Y_sklearn = dim_reduction(data)
-#     kmeans_test = Kmeans(clusters, seed, iterations)
-#     fitted = kmeans_test.fit_kmeans(Y_sklearn)
-#     predicted_values = kmeans_test.predict(Y_sklearn)
-#     plt.scatter(Y_sklearn[:, 0], Y_sklearn[:, 1], c=predicted_values, s=50, cmap='viridis')
-#     centers = fitted.centroids
-#     plt.scatter(centers[:, 0], centers[:, 1], c='black', s=300, alpha=0.6)
-#     return predicted_values
-
-
 def hub_tags_to_ohe(df):
     ohe_types = pd.get_dummies(df['hub_tags_cat'], prefix='type')
     new_df = pd.concat([df.drop('hub_tags_cat', axis=1), ohe_types], axis=1)
@@ -293,106 +282,6 @@ def unlist_industries_and_hub_tags(ind, ht):
     return new_ind, new_ht
 
 
-def currency_to_usd_single(other_curr):
-    global new_curr
-    currencies = {'£': 1.42, '€': 1.22, '₹': 0.014, 'CN¥': 0.16, 'ZAR': 0.071, 'CA$': 0.83, 'BDT': 0.012,
-                  'SEK': 0.12, 'CHF': 1.11, 'A$': 0.77, '¥': 0.0091, 'DKK': 0.16, '₩': 0.00090, 'R$': 0.20,
-                  'AED': 0.27, 'HK$': 0.13, '₪': 0.31, 'SGD': 0.75, 'PLN': 0.27, 'RUB': 0.014, 'NGN': 0.0024,
-                  'THB': 0.032, 'NOK': 0.12, 'NT$': 0.03616,
-                  'QAR': 0.27, 'MX$': 0.050, 'NZ$': 0.71, 'IDR': 0.000070, 'KES': 0.0093, 'MYR': 0.24,
-                  'PHP': 0.021, '₫': 0.00004, 'ISK': 0.0082, 'KWD': 3.33,
-                  'TRY': 0.12, 'SAR': 0.27, 'HRK': 0.16, 'SDG': 0.0022, 'MAD': 0.11, 'COP': 0.00027, 'CLP': 0.0014,
-                  'EGP': 0.064, 'CZK': 0.046, 'HUF': 0.0034, 'DZD': 0.0074,
-                  'SKK': 0.0393914, 'MMK': 0.00061, 'IRR': 0.000024, 'PKR': 0.0064,
-                  'TND': 0.36, 'UGX': 0.00028}
-
-    if isinstance(other_curr, str):
-        if ',' in other_curr:
-            new_curr = other_curr.replace(',', '')
-
-        if other_curr[0] == '$':
-            new_curr = other_curr[1:]
-
-        elif other_curr[1].isdigit():
-            value = str(float(other_curr[1:-1]) * currencies.get(other_curr[0]))
-            new_curr = value + other_curr[-1]
-
-        elif other_curr[2].isdigit():
-            value = str(float(other_curr[2:-1]) * currencies.get(other_curr[0:2]))
-            new_curr = value + other_curr[-1]
-
-        elif other_curr[3].isdigit():
-            value = str(float(other_curr[3:-1]) * currencies.get(other_curr[0:3]))
-            new_curr = value + other_curr[-1]
-    else:
-        new_curr = float(other_curr)
-
-    return new_curr
-
-
-def remove_tmbk_single(tmbk_value):
-    global new_tmbk
-    if tmbk_value[-1] == 'B':
-        new_tmbk = float(tmbk_value[:-1]) * 1000000000
-    elif tmbk_value[-1] == 'M':
-        new_tmbk = float(tmbk_value[:-1]) * 1000000
-    elif tmbk_value[-1] == 'K':
-        new_tmbk = float(tmbk_value[:-1]) * 100000
-    elif tmbk_value[-1] == 'T':
-        new_tmbk = float(tmbk_value[:-1]) * 1000000000000
-    else:
-        new_tmbk = float(tmbk_value)
-
-    return new_tmbk
-
-
-# def create_tfidf_array(data):
-#     tf_idf_vectorizor = TfidfVectorizer(stop_words='english', max_features=20000)
-#     tf_idf = tf_idf_vectorizor.fit_transform(data)
-#     tf_idf_norm = normalize(tf_idf)
-#     tf_idf_array = tf_idf_norm.toarray()
-#     return tf_idf_array
-#
-#
-# def dim_reduction(data):
-#     tf_idf_array = create_tfidf_array(data)
-#     sklearn_pca = PCA(n_components=2)
-#     reduced_dim = sklearn_pca.fit_transform(tf_idf_array)
-#     return reduced_dim
-
-
-# def test_fit_and_predict(clusters, seed, iterations, data):
-#     Y_sklearn = dim_reduction(data)
-#     kmeans_test = Kmeans(clusters, seed, iterations)
-#     fitted = kmeans_test.fit_kmeans(Y_sklearn)
-#     predicted_values = kmeans_test.predict(Y_sklearn)
-#     plt.scatter(Y_sklearn[:, 0], Y_sklearn[:, 1], c=predicted_values, s=50, cmap='viridis')
-#     centers = fitted.centroids
-#     plt.scatter(centers[:, 0], centers[:, 1], c='black', s=300, alpha=0.6)
-#     return fitted, predicted_values
-
-
-def hub_tag_cat_single(hub_tag):
-    tag = ''
-    tags = {'Unicorn': ['Unicorn', 'Pledge 1%, Unicorn'],
-            'Exited Unicorn': ['Exited Unicorn', 'Exited Unicorn, Pledge 1%',
-                               'Crunchbase Venture Program, Exited Unicorn'],
-            'Emerging Unicorn': ['Emerging Unicorn', 'Emerging Unicorn, Pledge 1%'],
-            'Others': ['Crunchbase Venture Program', 'Crunchbase Venture Program, Pledge 1%', 'Pledge 1%']}
-
-    if hub_tag is not np.nan:
-        for k, v in tags.items():
-            if hub_tag in v:
-                tag = tag + k
-    # return type unicorn, type emerging unicorn
-    if tag == 'Unicorn':
-        return 1, 0
-    elif tag == 'Emerging Unicorn':
-        return 0, 1
-    else:
-        return 0, 0
-
-
 def employees_to_le_single(employ):
     employees = {'1-10': 1, '11-50': 2, '51-100': 3, '101-250': 4, '251-500': 5,
                  '501-1000': 6, '1001-5000': 7, '5001-10000': 8, '10001+': 9}
@@ -423,4 +312,3 @@ def grp_last_funding_type_single(last_fund):
         return 0, 1
     else:
         return 0, 0
-

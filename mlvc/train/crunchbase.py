@@ -15,6 +15,12 @@ class Crunchbase():
         self.model_directory = config.MODEL_SAVE_DIR
 
     def read_data(self):
+        """Reads the data
+        Returns
+        -------
+        dataframe
+        """
+        
         df = pd.read_csv(self.data_filepath)
         return df
 
@@ -68,21 +74,19 @@ class Crunchbase():
         ind.dropna(inplace=True)
         tfidf_vectorizer_industries = TfidfVectorizer()
         tfidf_industries = tfidf_vectorizer_industries.fit_transform(ind['industries'])
-        today = datetime.today().strftime('%Y-%m-%d')
-        pickle.dump(tfidf_vectorizer_industries, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'tfidf_industries_{today}.pkl'), 'wb'))
+
+        pickle.dump(tfidf_vectorizer_industries, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, 'tfidf_industries.pkl'), 'wb'))
         kmeans_ind = KMeans(n_clusters=3).fit(tfidf_industries)
-        pickle.dump(kmeans_ind, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'kmeans_industries_{today}.sav'), 'wb'))
-        predicted_values_industry = kmeans_ind.predict(tfidf_industries)
+        pickle.dump(kmeans_ind, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, 'kmeans_industries.sav'), 'wb'))
 
         # clustering and one hot encoding related hubs
         hubs = df[['related_hubs']]
         hubs.dropna(inplace=True)
         tfidf_vectorizer_hubs = TfidfVectorizer()
         tfidf_hubs = tfidf_vectorizer_hubs.fit_transform(hubs['related_hubs'])
-        pickle.dump(tfidf_vectorizer_hubs, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'tfidf_hubs_{today}.pickle'), 'wb'))
+        pickle.dump(tfidf_vectorizer_hubs, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, 'tfidf_hubs.pkl'), 'wb'))
         kmeans_hubs = KMeans(n_clusters=3).fit(tfidf_hubs)
-        pickle.dump(kmeans_hubs, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, f'kmeans_hubs_{today}.sav'), 'wb'))
-        predicted_values_hubs = kmeans_hubs.predict(tfidf_hubs)
+        pickle.dump(kmeans_hubs, open(os.path.join(os.getcwd(), config.MODEL_SAVE_DIR, 'kmeans_hubs.sav'), 'wb'))
 
         ind_pred = pd.concat([ind['industries'], pd.Series(predicted_values_industry, index=ind.index)], axis=1)
         ind_pred_ohe = pd.get_dummies(ind_pred[0], prefix='type')
@@ -134,8 +138,8 @@ class Crunchbase():
         df_merged2['active_tech_count'].replace(np.nan, df_merged2['active_tech_count'].median(), inplace=True)
         df_merged2['number_of_articles'].replace(np.nan, df_merged2['number_of_articles'].median(), inplace=True)
         df_merged2['number_of_events'].replace(np.nan, df_merged2['number_of_events'].median(), inplace=True)
-        df_merged2['valuation_at_ipo'].replace(np.nan, df_merged2['valuation_at_ipo'].median(), inplace=True)
-        df_merged2['money_raised_at_ipo'].replace(np.nan, df_merged2['money_raised_at_ipo'].median(), inplace=True)
+        df_merged2['valuation_at_ipo'].replace(np.nan, 0.0, inplace=True)
+        df_merged2['money_raised_at_ipo'].replace(np.nan, 0.0, inplace=True)
         df_merged2['downloads_last_30_days'].replace(np.nan, df_merged2['downloads_last_30_days'].median(),
                                                      inplace=True)
         df_merged2['price'].replace(np.nan, df_merged2['price'].median(), inplace=True)
